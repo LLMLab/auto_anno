@@ -49,8 +49,9 @@ def extract_named_entities(src_txt, type_arr):
                 if ready_keys.__contains__(ready_key):
                     continue
                 item['start'] = i
-                item['end'] = i + len(item['name'])
                 break
+        # 确保实体结尾坐标正确
+        item['end'] = item['start'] + len(item['name'])
         # 将在实体类型里的放入结果
         result.append(item)
         ready_key = get_ready_key(item['name'], item['type'], item['start'])
