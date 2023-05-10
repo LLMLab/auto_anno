@@ -8,6 +8,8 @@ def auto_anno(txt, types, radio, need_trans=False):
     result = text_classification(txt, types)
   if radio == '实体抽取':
     result = extract_named_entities(txt, types)
+  if need_trans:
+    result = f'{txt}\n{result}'
   return result
 
 input1 = gr.Textbox(lines=3, label="输入原句")
