@@ -36,6 +36,9 @@ def extract_named_entities(src_txt, type_arr):
     for item in j:
         s = item['start']
         e = item['end']
+        # 过滤非目标实体类型
+        if not type_arr.__contains__(item['type']):
+            continue
         # 修正标注错误的实体坐标
         if src_txt[s:e] != item['name']:
             for i in range(len(src_txt)):
