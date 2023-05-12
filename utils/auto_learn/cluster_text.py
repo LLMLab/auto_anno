@@ -35,7 +35,7 @@ def cluster_text(text_list, n_clusters=20, openai_api_key=openai_key):
     distances = euclidean_distances(data, centers)
 
     # Get the indices of the samples with the largest distance to their center
-    indices = np.argmax(distances, axis=0)
+    indices = np.argmax(distances, axis=1)
 
     # Get the samples with the largest distance to their center
     samples = []
