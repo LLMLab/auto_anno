@@ -9,6 +9,7 @@ https://huggingface.co/spaces/maxmon/auto_anno
 
 ## 微信交流群
 ![二维码](img/qr_code.jpg)
+
 ✨欢迎入群沟通、交流、反馈~
 
 ## 贡献名单
