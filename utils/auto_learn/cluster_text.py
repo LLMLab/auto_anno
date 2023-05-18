@@ -34,27 +34,11 @@ def cluster_text(text_list, n_clusters=20, openai_api_key=openai_key):
     # distances = kmeans.transform(data)
     distances = euclidean_distances(data, centers)
 
-    # Get the indices of the samples with the largest distance to their center
-    indices = np.argmax(distances, axis=1)
+    # Get the centers' index
+    indexes = np.argmin(distances, axis=0)
 
-    # Get the samples with the largest distance to their center
-    samples = []
-    seen_samples = set()
-    for i in indices:
-        sample = text_list[i]
-        if sample not in seen_samples:
-            samples.append(sample)
-            seen_samples.add(sample)
-        else:
-            sorted_indices = np.argsort(distances[:, i])
-            for j in sorted_indices[::-1]:
-                sample = text_list[j]
-                if sample not in seen_samples:
-                    samples.append(sample)
-                    seen_samples.add(sample)
-                    break
-
-    # Return samples as list of strings
+    # Get the samples with the smallest distance to their center
+    samples = [text_list[idx] for idx in indexes]
     return samples
 
 
@@ -91,10 +75,15 @@ if __name__ == "__main__":
         '质量很好 料子很不错 做工细致 样式好看 穿着很漂亮',
         ' 会卷的    建议买大的小的会卷   胖就别买了       没用',
         '大差了  布料很差  我也不想多说',
-        '一点也不好，我买的东西拿都拿到快递员自己签收了还不给我，恶心恶心恶心，不要脸不要脸'
+        '一点也不好，我买的东西拿都拿到快递员自己签收了还不给我，恶心恶心恶心，不要脸不要脸',
+        '一百多和三十的也看不出什么区别，包装精美，质量应该不错。',
+        '质量很好 料子很不错 做工细致 样式好看 穿着很漂亮',
+        ' 会卷的    建议买大的小的会卷   胖就别买了       没用',
+        '大差了  布料很差  我也不想多说',
+        '一点也不好，我买的东西拿都拿到快递员自己签收了还不给我，恶心恶心恶心，不要脸不要脸',
     ]
 
     result = cluster_text(test_data, n_clusters=3)
-    plot_clusters(test_data, n_clusters=3)
+    # plot_clusters(test_data, n_clusters=3)
 
     print(result)
