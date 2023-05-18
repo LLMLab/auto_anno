@@ -27,13 +27,13 @@ if __name__ == '__main__':
     ['买的椒盐的，结果是浓浓的奶油味，很讨厌这种浓浓的食品添加剂的味道。。', ['差评']],
     ['香气跟以前的不一样，不知道是不是假的，以前的香气很好闻。', ['差评']],
   ]
-  history = []
+  # history = []
 
   results = []
   for txt in tqdm(txts):
     while True:
       try:
-        result = text_classification(txt, ['好评', '差评'])
+        result = text_classification(txt, ['好评', '差评'], history)
         results.append(result)
         write(f'{txt},{result}\n')
         break
