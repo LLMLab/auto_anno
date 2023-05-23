@@ -8,7 +8,7 @@
 https://huggingface.co/spaces/maxmon/auto_anno
 
 ## 微信交流群
-![二维码](https://tekii.cn/qr/img/auto_anno.jpg)
+![二维码](https://tekii.cn/qr/img/auto_anno_0530.jpg)
 
 ✨欢迎入群沟通、交流、反馈~
 
