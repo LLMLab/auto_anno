@@ -2,7 +2,7 @@ import openai
 import json
 import sys
 sys.path.append('.')
-from utils.api.openai import chat
+from utils.api.openai_api import chat
 
 def get_ready_key(name, type, start):
     return f'{name}-{type}-{start}'
