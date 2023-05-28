@@ -3,7 +3,7 @@ sys.path.append('.')
 from utils.format.txt_2_list import txt_2_list
 from utils.api.openai import chat
 
-def text_classification(src_txt, type_arr, history=[]):
+def text_classification(src_txt, type_arr, history=[], chat=chat):
     history_txt = ''.join([f'输入|```{q}```输出|{a}\n' for q, a in history])
     user = "你是一个聪明而且有百年经验的文本分类器. 你的任务是从一段文本里面提取出相应的分类结果签。你的回答必须用统一的格式。文本用```符号分割。分类类型保存在一个数组里{类别}" \
         "\n{历史}" \
