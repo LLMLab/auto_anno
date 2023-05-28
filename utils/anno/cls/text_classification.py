@@ -1,5 +1,6 @@
 import sys
 sys.path.append('.')
+sys.path.append('auto_anno')
 from utils.format.txt_2_list import txt_2_list
 from utils.api.openai import chat
 

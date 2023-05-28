@@ -2,6 +2,7 @@ import openai
 import json
 import sys
 sys.path.append('.')
+sys.path.append('auto_anno')
 from utils.api.openai import chat
 
 def get_ready_key(name, type, start):
