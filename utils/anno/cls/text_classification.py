@@ -11,6 +11,7 @@ def text_classification(src_txt, type_arr, history=[], chat=chat):
         "输入|```{原文}```输出|"
     user = user.replace('{类别}', str(type_arr)).replace('{历史}', history_txt).replace('{原文}', src_txt)
     content = chat(user)
+    print(content)
     # Check out in type_arr
     result = []
     for type in type_arr:

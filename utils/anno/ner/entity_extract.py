@@ -1,6 +1,7 @@
 import openai
 import json
 import sys
+import re
 sys.path.append('.')
 sys.path.append('auto_anno')
 from utils.api.openai import chat
@@ -16,6 +17,10 @@ def extract_named_entities(src_txt, type_arr, history=[], chat=chat):
         "输入|```{原文}```输出|"
     user = user.replace('{类别}', str(type_arr)).replace('{历史}', history_txt).replace('{原文}', src_txt)
     content = chat(user)
+    print(content)
+    # 跨行替换
+    content = re.sub(r'\][^紒]*', ']', content)
+    content = re.sub(r'[^紒]*\[', '[', content)
     j = json.loads(content)
     result = []
     j.sort(key=lambda x: x['start']*1000+x['end'])
