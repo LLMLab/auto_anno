@@ -2,7 +2,7 @@ import sys
 sys.path.append('.')
 sys.path.append('auto_anno')
 from utils.format.txt_2_list import txt_2_list
-from utils.api.openai import chat
+from utils.api.openai_api import chat
 
 def text_classification(src_txt, type_arr, history=[], chat=chat):
     history_txt = ''.join([f'输入|```{q}```输出|{a}\n' for q, a in history])
