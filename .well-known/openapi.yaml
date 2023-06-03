@@ -64,7 +64,7 @@ components:
           description: The input text user want to classify
           required: true
         types:
-          type: string
+          type: array
           description: The types user specified
           required: true
     getClassificationResponse:
@@ -81,7 +81,7 @@ components:
           description: The input text user want to extract
           required: true
         types:
-          type: string
+          type: array
           description: The types user specified
           required: true
     getEntityextractResponse:
