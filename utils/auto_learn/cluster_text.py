@@ -4,23 +4,43 @@ from sklearn.cluster import KMeans
 from sklearn.metrics.pairwise import euclidean_distances
 import openai
 import numpy as np
-# import matplotlib
-# print(matplotlib.matplotlib_fname())
+import random
 import sys
 sys.path.append('.')
-from local_config import openai_key
 
+EMBEDDING_BY = 'openai' # openai | bert
 
-def cluster_text(text_list, n_clusters=20, openai_api_key=openai_key):
-    # Set OpenAI API key
-    openai.api_key = openai_api_key
-    model = "text-embedding-ada-002"
-    # Convert text_list to numerical data using OpenAI API
+if EMBEDDING_BY == 'openai':
+    import openai
+    from local_config import openai_key
+elif EMBEDDING_BY == 'bert':
+    from transformers import AutoTokenizer, AutoModelForMaskedLM
+    tokenizer = AutoTokenizer.from_pretrained("bert-base-chinese")
+    model = AutoModelForMaskedLM.from_pretrained("bert-base-chinese")
+    import torch
+
+def get_embedding(text, by=EMBEDDING_BY):
+    if by == 'openai':
+        # Set OpenAI API key
+        openai.api_key = random.choice(openai_key) if type(openai_key) == list else openai_key
+        model = "text-embedding-ada-002"
+        emb_req = openai.Embedding.create(input=[text], model=model)
+        embedding = emb_req.data[0].embedding
+        return embedding
+    elif by == 'bert':
+        encoded_input = tokenizer(text, padding=True, truncation=True, return_tensors='pt')
+        output = model(**encoded_input)
+
+        embedding = torch.mean(output[0], dim=1).squeeze(0)
+        return embedding.detach().numpy()
+    return None
+
+def cluster_text(text_list, n_clusters=20):
+    # Convert text_list to numerical data
     data = []
     for text in text_list:
-        emb_req = openai.Embedding.create(input=[text], model=model)
-        embeddings = emb_req.data[0].embedding
-        data.append(embeddings)
+        embedding = get_embedding(text, by=EMBEDDING_BY)
+        data.append(embedding)
     data = np.array(data)
 
     # Cluster the data
