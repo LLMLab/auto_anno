@@ -128,6 +128,7 @@ def gen_params(appid, question):
 def main(appid, api_key, api_secret, gpt_url, question):
     outs = []
     state = {'is_close': False}
+    cnt = 0
     def _on_message(ws, message):
         is_close, content = on_message(ws, message)
         state['is_close'] = is_close
