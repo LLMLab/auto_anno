@@ -145,10 +145,11 @@ def main(appid, api_key, api_secret, gpt_url, question):
     ws.appid = appid
     ws.question = question
     ws.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
-    while True:
+    while cnt < 5*30: # 最多等30秒
         time.sleep(0.2)
         if state['is_close']:
             return ''.join(outs)
+    return ''
 xunfei_api = {
   'appid': '',
   'api_secret': '',
