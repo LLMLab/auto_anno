@@ -40,7 +40,7 @@ def auto_anno(txt, types_txt, radio, need_trans, cls_prompt, ner_prompt):
   return result
 
 with gr.Blocks() as demo:
-    demo.css = '#file_intput {height: 100px;}'
+    demo.css = '#file_intput {height: 100px;} #file_intput>.w-full {padding-top: 7px;display: block;font-size: 0.5em;overflow: hidden;}'
     with gr.Row():
         gr.Markdown("""自动标注，大模型使用了一言千帆的api，本项目开源地址为：https://github.com/LLMLab/auto_anno""")
     with gr.Row():
