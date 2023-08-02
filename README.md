@@ -9,7 +9,7 @@
 
 ## 体验地址
 
-https://huggingface.co/spaces/maxmon/auto_anno
+https://aistudio.baidu.com/aistudio/projectdetail/6542456
 
 ## 贡献名单
 
