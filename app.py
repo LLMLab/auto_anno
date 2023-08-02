@@ -8,7 +8,10 @@ from local_config import en2cn
 from utils.format.txt_2_list import txt_2_list
 
 def file_auto_anno(file, types_txt, radio, need_trans, cls_prompt, ner_prompt):
-  txts = open(file.name, 'r', encoding='utf-8').read().strip().split('\n')
+  try:
+    txts = open(file.name, 'r', encoding='utf-8').read().strip().split('\n')
+  except Exception as e:
+    return '请上传txt文件，其中每一行都为一句待标注原文'
   out_txts = []
   for txt in txts:
     try:
