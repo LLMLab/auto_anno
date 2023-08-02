@@ -15,7 +15,15 @@ https://aistudio.baidu.com/aistudio/projectdetail/6542456
 
 OpenAI-api、ChatGLM、文心一言-千帆api、讯飞星火-SparkApi
 
-以上模型均已支持，填入对应的 key 或 url 即可使用
+以上模型均已支持，在  local_config.py 中填入对应的 key 或 url 即可使用
+
+## 快速使用
+
+```shell
+git clone https://github.com/LLMLab/auto_anno.git
+cd auto_anno
+python app.py
+```
 
 ## 贡献名单
 
