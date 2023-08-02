@@ -3,9 +3,7 @@ import json
 
 from utils.anno.cls.text_classification import text_classification
 from utils.anno.ner.entity_extract import extract_named_entities
-# from utils.api.google_trans import en2cn
-# from utils.api.chatglm_api import en2cn_glm as en2cn
-from utils.api.yiyan_api import en2cn_yiyan as en2cn
+from local_config import en2cn
 
 from utils.format.txt_2_list import txt_2_list
 
