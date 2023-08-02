@@ -11,6 +11,12 @@
 
 https://aistudio.baidu.com/aistudio/projectdetail/6542456
 
+## 支持模型
+
+OpenAI-api、ChatGLM、文心一言-千帆api、讯飞星火-SparkApi
+
+以上模型均已支持，填入对应的 key 或 url 即可使用
+
 ## 贡献名单
 
 |           职责           |                                     名单                                     |
