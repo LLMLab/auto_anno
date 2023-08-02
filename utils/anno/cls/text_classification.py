@@ -4,8 +4,8 @@ sys.path.append('auto_anno')
 from utils.format.txt_2_list import txt_2_list
 # from utils.api.openai_api import chat
 # from utils.api.chatglm_api import chat_glm as chat
-from utils.api.yiyan_api import chat_yiyan as chat
-
+# from utils.api.yiyan_api import chat_yiyan as chat
+from utils.api.xunfei_api import chat_xunfei as chat
 
 cls_prompt = "你是一个聪明而且有百年经验的文本分类器. 你的任务是从一段文本里面提取出相应的分类结果签。你的回答必须用统一的格式。文本用```符号分割。分类类型保存在一个数组里{类别}" \
         "\n{历史}" \
