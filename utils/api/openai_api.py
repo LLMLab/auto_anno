@@ -1,8 +1,9 @@
 import openai
 import sys
 sys.path.append('.')
-from local_config import openai_key
+from local_config import config
 
+openai_key = config['openai']['key']
 if type(openai_key) == list:
     openai_keys = openai_key
 else:
@@ -13,12 +14,15 @@ openai.api_key = openai_keys[0]
 
 i = 0
 
-def chat(user):
+def chat_openai(user):
     global i
     i += 1
     if i >= len(openai_keys):
         i = 0
     openai.api_key = openai_keys[i]
+    openai.api_base = "https://api.openai.com/v1"
+    # openai.api_base = "http://47.89.230.109/v1"
+    # openai.api_base = "https://api.tekii.cn/v1"
     # Call the OpenAI API
     completion = openai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
@@ -29,15 +33,16 @@ def chat(user):
 
     # Extract the output and parse the JSON array
     content = completion.choices[0].message.content
-    print(content)
 
     return content
 
 if __name__ == '__main__':
-    import flask
-    app = flask.Flask(__name__)
-    @app.route('/chat', methods=['POST'])
-    def chat_api():
-        user = flask.request.form.get('user')
-        return chat(user)
-    app.run(port=5000, host='0.0.0.0')
+    content = chat_openai('123')
+    print(content)
+    # import flask
+    # app = flask.Flask(__name__)
+    # @app.route('/chat', methods=['POST'])
+    # def chat_api():
+    #     user = flask.request.form.get('user')
+    #     return chat(user)
+    # app.run(port=5000, host='0.0.0.0')

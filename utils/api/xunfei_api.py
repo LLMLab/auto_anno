@@ -11,6 +11,7 @@ from time import mktime
 import time
 from urllib.parse import urlencode
 from wsgiref.handlers import format_date_time
+from local_config import config
 
 import websocket
 
@@ -151,11 +152,7 @@ def main(appid, api_key, api_secret, gpt_url, question):
         if state['is_close']:
             return ''.join(outs)
     return ''
-xunfei_api = {
-  'appid': '',
-  'api_secret': '',
-  'api_key': ''
-}
+xunfei_api = config['xunfei']
 def chat_xunfei(prompt):
     content = main(appid=xunfei_api['appid'],
          api_secret=xunfei_api["api_secret"],

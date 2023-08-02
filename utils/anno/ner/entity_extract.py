@@ -3,10 +3,7 @@ import sys
 import re
 sys.path.append('.')
 sys.path.append('auto_anno')
-# from utils.api.openai_api import chat
-# from utils.api.chatglm_api import chat_glm as chat
-# from utils.api.yiyan_api import chat_yiyan as chat
-from utils.api.xunfei_api import chat_xunfei as chat
+from local_config import chat
 
 ner_prompt = "你是一个聪明而且有百年经验的命名实体识别（NER）识别器. 你的任务是从一段文本里面提取出相应的实体并且给出标签。你的回答必须用统一的格式。文本用```符号分割。输出采用Json的格式并且标记实体在文本中的位置。实体类型保存在一个数组里{类别}\n" \
         '\n输入|```皮卡丘神奇宝贝```输出|[{"name": "皮卡丘", "type": "Person", "start": 0, "end": 3}, {"name": "神奇宝贝", "type": "物种", "start": 4, "end": 8}]' \
