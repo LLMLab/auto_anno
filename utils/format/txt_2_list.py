@@ -1,7 +1,7 @@
 import re
 
 def txt_2_list(txt):
-  split_token = r'[ ,、，;；《》<>]'
+  split_token = r'[ ,、，;；《》<>\n]'
   rm_token = r'["\'”“‘’。.！!？? 【】\[\]]'
     
   arr = re.split(split_token, txt)
