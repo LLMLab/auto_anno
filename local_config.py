@@ -1,6 +1,7 @@
 config = {
-    'api': 'yiyan', # openai | chatglm_paddle | chatglm | yiyan | xunfei
+    'api': 'xunfei', # openai | chatglm_paddle | chatglm | yiyan | xunfei
     'en2cn': 'yiyan', # google_trans | chatglm_paddle | yiyan
+    'emb': 'xunfei', # xunfei
     'openai': {
         'key': [
             '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',
@@ -40,3 +41,7 @@ elif config['en2cn'] == 'yiyan':
     from utils.api.yiyan_api import en2cn_yiyan as en2cn
 else:
     raise Exception('en2cn not supported')
+if config['emb'] == 'xunfei':
+    from utils.api.xunfei_api import emb_xunfei as emb
+else:
+    raise Exception('emb not supported')
