@@ -68,7 +68,8 @@ def on_error(ws, error):
 
 # 收到websocket关闭的处理
 def on_close(ws):
-    print("### closed ###")
+    # print("### closed ###")
+    pass
 
 
 # 收到websocket连接建立的处理
@@ -140,7 +141,7 @@ def main(appid, api_key, api_secret, gpt_url, question):
     def _on_error(ws, error):
         on_error(ws, error)
         state["is_close"] = True
-    def _on_close(ws):
+    def _on_close(ws, *args):
         on_close(ws)
         state["is_close"] = True
     wsParam = Ws_Param(appid, api_key, api_secret, gpt_url)

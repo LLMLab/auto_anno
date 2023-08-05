@@ -2,3 +2,4 @@ openai
 gradio==3.11
 quart
 quart-cors
+numpy
