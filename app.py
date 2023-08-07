@@ -1,13 +1,63 @@
 import gradio as gr
 import json
+import os
+import pickle as pkl
+import numpy as np
 
 from utils.anno.cls.text_classification import text_classification
 from utils.anno.ner.entity_extract import extract_named_entities
-from local_config import en2cn
-
+from local_config import en2cn, emb, config
 from utils.format.txt_2_list import txt_2_list
 
-def file_auto_anno(file, types_txt, radio, need_trans, cls_prompt, ner_prompt):
+os.makedirs(f'tmp/emb/', exist_ok=True)
+md5_vector_map = {}
+emb_pkl_path = f'tmp/emb/{config["emb"]}.pkl'
+if os.path.exists(emb_pkl_path):
+  md5_vector_map = pkl.load(open(emb_pkl_path, 'rb'))
+
+def md5(txt):
+  import hashlib
+  m = hashlib.md5()
+  m.update(txt.encode('utf-8'))
+  return m.hexdigest()
+
+def load_example_file(file_example):
+  try:
+    is_emb_update = False
+    train_txts = open(file_example.name, 'r', encoding='utf-8').read().strip().split('\n')
+    for train_txt in train_txts:
+      q, a = train_txt.split('\t')
+      md5_q = md5(q)
+      if md5_q not in md5_vector_map:
+        is_emb_update = True
+        vector = emb(train_txt)
+        md5_vector_map[md5_q] = {
+          'vector': vector,
+          'q': q,
+          'a': a
+        }
+    if is_emb_update:
+      pkl.dump(md5_vector_map, open(emb_pkl_path, 'wb'))
+  except Exception as e:
+    print(e)
+    print('示例文件解析失败，请一行为一条数据，输入和输出用\t分割')
+
+def load_similar_txt(txt):
+  vector = emb(txt)
+  vec_score_arr = []
+  for k in md5_vector_map:
+    vector_info = md5_vector_map[k]
+    t_vector = vector_info['vector']
+    similar_score = np.dot(t_vector, vector)
+    vec_score_arr.append((vector_info, similar_score))
+  vec_score_arr.sort(key=lambda x: x[1], reverse=True)
+  history = []
+  for vec_score in vec_score_arr[:4]:
+    vec_info = vec_score[0]
+    history.append([vec_info['q'], vec_info['a']])
+  return history
+
+def file_auto_anno(file, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_example=None):
   try:
     txts = open(file.name, 'r', encoding='utf-8').read().strip().split('\n')
   except Exception as e:
@@ -15,7 +65,8 @@ def file_auto_anno(file, types_txt, radio, need_trans, cls_prompt, ner_prompt):
   out_txts = []
   for txt in txts:
     try:
-      out_anno = auto_anno(txt, types_txt, radio, need_trans, cls_prompt, ner_prompt)
+      txt = txt.split('\t')[0]
+      out_anno = auto_anno(txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_example=file_example)
       if need_trans:
         _out_anno = out_anno.split('\n')[-1]
         _txt = out_anno.replace('\n'+_out_anno, '')
@@ -27,12 +78,16 @@ def file_auto_anno(file, types_txt, radio, need_trans, cls_prompt, ner_prompt):
     out_txts.append(out_txt)
   return '\n'.join(out_txts)
 
-def auto_anno(txt, types_txt, radio, need_trans, cls_prompt, ner_prompt):
+def auto_anno(txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_example=None):
+  history = []
+  if file_example:
+    load_example_file(file_example)
+    history = load_similar_txt(txt)
   if need_trans:
     txt = en2cn(txt)
   types = txt_2_list(types_txt)
   if radio == '文本分类':
-    result = text_classification(txt, types, prompt=cls_prompt)
+    result = text_classification(txt, types, prompt=cls_prompt, history=history)
   if radio == '实体抽取':
     result = extract_named_entities(txt, types, prompt=ner_prompt)
   if need_trans:
@@ -40,24 +95,26 @@ def auto_anno(txt, types_txt, radio, need_trans, cls_prompt, ner_prompt):
   return result
 
 with gr.Blocks() as demo:
-    demo.css = '#file_intput {height: 100px;} #file_intput>.w-full {padding-top: 7px;display: block;font-size: 0.5em;overflow: hidden;}'
+    demo.css = '#file_input_raw {height: 100px;} #file_input_raw>.w-full {padding-top: 7px;display: block;font-size: 0.5em;overflow: hidden;}' \
+      '#file_input_example {height: 100px;} #file_input_example>.w-full {padding-top: 7px;display: block;font-size: 0.5em;overflow: hidden;}'
     with gr.Row():
         gr.Markdown("""自动标注，大模型使用了一言千帆的api，本项目开源地址为：https://github.com/LLMLab/auto_anno""")
     with gr.Row():
         with gr.Column(variant="panel"):
-            input1 = gr.Textbox(lines=3, label="输入原句", value="Hello world!")
             input2 = gr.Textbox(lines=3, label="输入类别", value="友好、不友好")
-            cls_prompt = gr.Textbox(lines=3, label="分类提示", value='你是一个有百年经验的文本分类器，回复以下句子的分类类别，类别选项为{类别}\n{历史}{原文}\n类别为：', visible=False)
+            cls_prompt = gr.Textbox(lines=3, label="分类提示", value='你是一个有百年经验的文本分类器，回复以下句子的分类类别，类别选项为{类别}\n{历史}输入|```{原文}```输出|', visible=False)
             ner_prompt = gr.Textbox(lines=3, label="抽取提示", value='你是一个经验丰富的命名实体抽取程序。输出标准数组json格式并且标记实体在文本中的位置\n示例输入|```联系方式：18812345678，联系地址：幸福大街20号```类型[\'手机号\', \'地址\'] 输出|[{"name": "18812345678", "type": "手机号", "start": 5, "end": 16}, {"name": "幸福大街20号", "type": "地址", "start": 5, "end": 16}]\n{历史}输入|```{原文}```类型{类别}输出|', visible=False)
             radio = gr.Radio(["文本分类", "实体抽取"], label="算法类型", value="文本分类")
             checkbox = gr.Checkbox(label="翻译成中文")
+            file_example = gr.File(label="已标注文件", type="file", accept=".txt,.tsv", container=False, elem_id="file_input_example").style()
             
         with gr.Column(variant="panel"):
-            file1 = gr.File(label="上传文件", type="file", accept=".txt", container=False, elem_id="file_intput").style()
+            input1 = gr.Textbox(lines=3, label="待标注文本", value="Hello world!")
+            file_raw = gr.File(label="待标注文件", type="file", accept=".txt", container=False, elem_id="file_input_raw").style()
             output = gr.Textbox(label="输出结果", lines=3)
             # 输入输出
-            inputs = [input1, input2, radio, checkbox, cls_prompt, ner_prompt]
-            file_inputs = [file1, input2, radio, checkbox, cls_prompt, ner_prompt]
+            inputs = [input1, input2, radio, checkbox, cls_prompt, ner_prompt, file_example]
+            file_inputs = [file_raw, input2, radio, checkbox, cls_prompt, ner_prompt, file_example]
             with gr.Row():
               btn = gr.Button("清空").style(full_width=True)
               btn2 = gr.Button("标注", visible=True, variant="primary").style(full_width=True)

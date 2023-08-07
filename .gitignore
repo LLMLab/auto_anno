@@ -163,3 +163,4 @@ data/
 doc/
 *.tsv
 *.pkl
+tmp/
