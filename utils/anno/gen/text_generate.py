@@ -11,6 +11,7 @@ gen_prompt = "你是一个有丰富数据的文本数据集，请帮我生成10�
     "\n以下为10句互不相关的句子："
 
 def text_generate(type_arr, history=[]):
+    type_arr.sort(key=lambda x: len(x), reverse=True) # 从长倒短排序，有限匹配长的，防止包含短的重复匹配，如：不好，好
     history_txt = ''.join([f'{q} | {a}\n' for q, a in history])
     user = gen_prompt
     user = user.replace('{类别}', str(type_arr)).replace('{历史}', history_txt)
@@ -22,9 +23,11 @@ def text_generate(type_arr, history=[]):
     content = re.sub(r'^\n\|', '|', content, flags=re.MULTILINE) # 防止标签换行
     ls = content.split('\n')
     for l in ls:
+        _l = l
         has_type_arr = []
         for type in type_arr:
-            if type in l:
+            if type in _l:
+                _l = _l.replace(type, '')
                 has_type_arr.append(type)
         # for type in has_type_arr:
         #     split_reg = '[\.,，。]'
