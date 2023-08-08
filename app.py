@@ -7,6 +7,7 @@ import time
 
 from utils.anno.cls.text_classification import text_classification
 from utils.anno.ner.entity_extract import extract_named_entities
+from utils.anno.gen.text_generate import text_generate
 from local_config import en2cn, emb, config
 from utils.format.txt_2_list import txt_2_list
 
@@ -127,6 +128,10 @@ def auto_anno(txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_ex
   if radio == '实体抽取':
     result = extract_named_entities(txt, types, prompt=ner_prompt)
     result = json.dumps(result, ensure_ascii=False)
+  if radio == '数据生成':
+    result = text_generate(types, history=[])
+    result = [r[0] + '\t' + json.dumps(r[1], ensure_ascii=False) for r in result]
+    result = '\n'.join(result)
   if need_trans:
     if radio == '无':
       result = txt
@@ -144,7 +149,7 @@ with gr.Blocks() as demo:
             input2 = gr.Textbox(lines=3, label="输入类别", value="友好、不友好")
             cls_prompt = gr.Textbox(lines=3, label="分类提示", value='你是一个有百年经验的文本分类器，回复以下句子的分类类别，类别选项为{类别}\n{历史}输入|```{原文}```输出|', visible=False)
             ner_prompt = gr.Textbox(lines=3, label="抽取提示", value='你是一个经验丰富的命名实体抽取程序。输出标准数组json格式并且标记实体在文本中的位置\n示例输入|```联系方式：18812345678，联系地址：幸福大街20号```类型[\'手机号\', \'地址\'] 输出|[{"name": "18812345678", "type": "手机号", "start": 5, "end": 16}, {"name": "幸福大街20号", "type": "地址", "start": 5, "end": 16}]\n{历史}输入|```{原文}```类型{类别}输出|', visible=False)
-            radio = gr.Radio(["文本分类", "实体抽取", "无"], label="算法类型", value="文本分类")
+            radio = gr.Radio(["文本分类", "实体抽取", "数据生成", "无"], label="算法类型", value="文本分类")
             checkbox = gr.Checkbox(label="翻译成中文")
             file_example = gr.File(label="已标注文件", type="file", accept=".txt,.tsv", container=False, elem_id="file_input_example").style()
             
