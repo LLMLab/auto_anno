@@ -10,10 +10,10 @@ from local_config import en2cn, emb, config
 from utils.format.txt_2_list import txt_2_list
 
 os.makedirs(f'tmp/emb/', exist_ok=True)
-md5_vector_map = {}
+types_md5_vector_map = {}
 emb_pkl_path = f'tmp/emb/{config["emb"]}.pkl'
 if os.path.exists(emb_pkl_path):
-  md5_vector_map = pkl.load(open(emb_pkl_path, 'rb'))
+  types_md5_vector_map = pkl.load(open(emb_pkl_path, 'rb'))
 
 def md5(txt):
   import hashlib
@@ -21,28 +21,28 @@ def md5(txt):
   m.update(txt.encode('utf-8'))
   return m.hexdigest()
 
-def load_example_file(file_example):
+def load_example_file(file_example, md5_vector_map):
   try:
     is_emb_update = False
     train_txts = open(file_example.name, 'r', encoding='utf-8').read().strip().split('\n')
     for train_txt in train_txts:
       q, a = train_txt.split('\t')
-      md5_q = md5(q)
-      if md5_q not in md5_vector_map:
+      md5_txt = md5(train_txt)
+      if md5_txt not in md5_vector_map:
         is_emb_update = True
-        vector = emb(train_txt)
-        md5_vector_map[md5_q] = {
+        vector = emb(q)
+        md5_vector_map[md5_txt] = {
           'vector': vector,
           'q': q,
           'a': a
         }
     if is_emb_update:
-      pkl.dump(md5_vector_map, open(emb_pkl_path, 'wb'))
+      pkl.dump(types_md5_vector_map, open(emb_pkl_path, 'wb'))
   except Exception as e:
     print(e)
     print('示例文件解析失败，请一行为一条数据，输入和输出用\t分割')
 
-def load_similar_txt(txt):
+def load_similar_txt(txt, md5_vector_map):
   vector = emb(txt)
   vec_score_arr = []
   for k in md5_vector_map:
@@ -81,8 +81,11 @@ def file_auto_anno(file, types_txt, radio, need_trans, cls_prompt, ner_prompt, f
 def auto_anno(txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_example=None):
   history = []
   if file_example:
-    load_example_file(file_example)
-    history = load_similar_txt(txt)
+    if types_txt not in types_md5_vector_map:
+      types_md5_vector_map[types_txt] = {}
+    md5_vector_map = types_md5_vector_map[types_txt]
+    load_example_file(file_example, md5_vector_map)
+    history = load_similar_txt(txt, md5_vector_map)
   if need_trans:
     txt = en2cn(txt)
   types = txt_2_list(types_txt)
