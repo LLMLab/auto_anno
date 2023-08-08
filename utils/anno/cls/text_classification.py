@@ -12,9 +12,8 @@ def text_classification(src_txt, type_arr, history=[], chat=chat, prompt=cls_pro
     history_txt = ''.join([f'输入|```{q}```输出|{a}\n' for q, a in history])
     user = prompt
     user = user.replace('{类别}', str(type_arr)).replace('{历史}', history_txt).replace('{原文}', src_txt)
-    print('user', user)
     content = chat(user)
-    print('content', content)
+    print(f'---- text_classification ----\nuser {user}\ncontent {content}\n')
     # Check out in type_arr
     result = []
     for type in type_arr:

@@ -16,9 +16,8 @@ def text_generate(type_arr, history=[]):
     history_txt = ''.join([f'{q} | {a}\n' for q, a in history])
     user = gen_prompt
     user = user.replace('{类别}', str(type_arr)).replace('{历史}', history_txt)
-    print('user', user)
     content = chat(user)
-    print('content', content)
+    print(f'---- text_generate ----\nuser {user}\ncontent {content}\n')
     # Check out in type_arr
     result = []
     content = re.sub(r'^\n\|', '|', content, flags=re.MULTILINE) # 防止标签换行
