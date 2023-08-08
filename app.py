@@ -3,6 +3,7 @@ import json
 import os
 import pickle as pkl
 import numpy as np
+import time
 
 from utils.anno.cls.text_classification import text_classification
 from utils.anno.ner.entity_extract import extract_named_entities
@@ -56,6 +57,29 @@ def load_similar_txt(txt, md5_vector_map):
     vec_info = vec_score[0]
     history.append([vec_info['q'], vec_info['a']])
   return history
+# 多线程
+from concurrent.futures import ThreadPoolExecutor
+executor = ThreadPoolExecutor(max_workers=30)
+from tqdm import tqdm
+
+def thread_auto_anno(out_txts, i, pbar, txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_example=None):
+  try:
+    out_anno = auto_anno(txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_example=file_example)
+    if need_trans:
+      if radio == '无':
+        out_txt = out_anno
+      else:
+        _out_anno = out_anno.split('\n')[-1]
+        _txt = out_anno.replace('\n'+_out_anno, '')
+        out_txt = f'{_txt}\t{_out_anno}'
+    else:
+      out_txt = f'{txt}\t{out_anno}'
+    out_txts.append([i, out_txt])
+  except Exception as e:
+    print('ERROR', e)
+    out_txts.append([i, ''])
+  pbar.update(1)
+  return out_txts
 
 def file_auto_anno(file, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_example=None):
   try:
@@ -63,27 +87,18 @@ def file_auto_anno(file, types_txt, radio, need_trans, cls_prompt, ner_prompt, f
   except Exception as e:
     return '请上传txt文件，其中每一行都为一句待标注原文'
   out_txts = []
-  for txt in txts:
-    try:
-      if radio in ['文本分类', '实体抽取']:
-        txt = txt.split('\t')[0]
-      # 单纯翻译数据集
-      if need_trans and radio == '无':
-        cn_txt = ''
-        for _txt in txt.split('\t'):
-          cn_txt += en2cn(_txt) + '\t'
-        out_txt = cn_txt[:-1]
-      else:
-        out_anno = auto_anno(txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_example=file_example)
-        if need_trans:
-          _out_anno = out_anno.split('\n')[-1]
-          _txt = out_anno.replace('\n'+_out_anno, '')
-          out_txt = f'{_txt}\t{_out_anno}'
-        else:
-          out_txt = f'{txt}\t{out_anno}'
-    except Exception as e:
-      out_txt = f'{txt}\t[]'
-    out_txts.append(out_txt)
+  txts_len = len(txts)
+  pbar = tqdm(total=txts_len)
+  for i in range(txts_len):
+    txt = txts[i]
+    if radio in ['文本分类', '实体抽取']:
+      txt = txt.split('\t')[0]
+    # thread_auto_anno(out_txts, i, pbar, txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_example=file_example)
+    executor.submit(thread_auto_anno, out_txts, i, pbar, txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_example=file_example)
+  while len(out_txts) < txts_len:
+    time.sleep(0.1)
+  out_txts.sort(key=lambda x: x[0])
+  out_txts = [f'{out_txt}' for i, out_txt in out_txts]
   return '\n'.join(out_txts)
 
 def auto_anno(txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_example=None):
@@ -95,7 +110,15 @@ def auto_anno(txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_ex
     load_example_file(file_example, md5_vector_map)
     history = load_similar_txt(txt, md5_vector_map)
   if need_trans:
-    txt = en2cn(txt)
+    # 单纯翻译 .tsv 数据集
+    if radio == '无':
+      cn_txt = ''
+      for _txt in txt.split('\t'):
+        cn_txt += en2cn(_txt) + '\t'
+      result = cn_txt[:-1]
+      return result
+    else:
+      txt = en2cn(txt)
   types = txt_2_list(types_txt)
   result = []
   if radio == '文本分类':
