@@ -25,6 +25,8 @@ def text_generate(type_arr, history=[]):
     for l in ls:
         _l = l
         has_type_arr = []
+        if '|' in _l:
+            _l = _l.split('|')[-1]
         for type in type_arr:
             if type in _l:
                 _l = _l.replace(type, '')
@@ -33,9 +35,8 @@ def text_generate(type_arr, history=[]):
         #     split_reg = '[\.,，。]'
         #     char_reg = '[^\.,，。]'
         #     l = re.sub(rf'{split_reg}{char_reg}*?{type}{char_reg}*?{split_reg}', '', l)
-        for type in has_type_arr:
-            l = l.replace('，属于', '|')
-            l = l.split('|')[0].strip()
+        l = l.replace('，属于', '|')
+        l = l.split('|')[0].strip()
         l = re.sub('^[\d]+[\. 、\s]*', '', l)
         result.append([l, has_type_arr])
 
