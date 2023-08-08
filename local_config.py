@@ -38,15 +38,24 @@ else:
 
 # en2cn
 if config['en2cn'] == 'google_trans':
-    from utils.api.google_trans import en2cn
+    from utils.api.google_trans import en2cn_google as _en2cn
 elif config['en2cn'] == 'chatglm_paddle':
-    from utils.api.chatglm_paddle import en2cn_glm as en2cn
+    from utils.api.chatglm_paddle import en2cn_glm as _en2cn
 elif config['en2cn'] == 'yiyan':
-    from utils.api.yiyan_api import en2cn_yiyan as en2cn
+    from utils.api.yiyan_api import en2cn_yiyan as _en2cn
 elif config['en2cn'] == 'xunfei':
-    from utils.api.xunfei_api import en2cn_xunfei as en2cn
+    from utils.api.xunfei_api import en2cn_xunfei as _en2cn
 else:
     raise Exception('en2cn not supported')
+en_cn_cache = {}
+def en2cn(txt, use_cache=True):
+    if txt.strip() == '':
+        return ''
+    if txt in en_cn_cache and use_cache:
+        return en_cn_cache[txt]
+    cn = _en2cn(txt)
+    en_cn_cache[txt] = cn
+    return cn
 
 # emb
 if config['emb'] == 'yiyan':
