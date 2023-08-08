@@ -65,14 +65,22 @@ def file_auto_anno(file, types_txt, radio, need_trans, cls_prompt, ner_prompt, f
   out_txts = []
   for txt in txts:
     try:
-      txt = txt.split('\t')[0]
-      out_anno = auto_anno(txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_example=file_example)
-      if need_trans:
-        _out_anno = out_anno.split('\n')[-1]
-        _txt = out_anno.replace('\n'+_out_anno, '')
-        out_txt = f'{_txt}\t{_out_anno}'
+      if radio in ['文本分类', '实体抽取']:
+        txt = txt.split('\t')[0]
+      # 单纯翻译数据集
+      if need_trans and radio == '无':
+        cn_txt = ''
+        for _txt in txt.split('\t'):
+          cn_txt += en2cn(_txt) + '\t'
+        out_txt = cn_txt[:-1]
       else:
-        out_txt = f'{txt}\t{out_anno}'
+        out_anno = auto_anno(txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_example=file_example)
+        if need_trans:
+          _out_anno = out_anno.split('\n')[-1]
+          _txt = out_anno.replace('\n'+_out_anno, '')
+          out_txt = f'{_txt}\t{_out_anno}'
+        else:
+          out_txt = f'{txt}\t{out_anno}'
     except Exception as e:
       out_txt = f'{txt}\t[]'
     out_txts.append(out_txt)
@@ -89,6 +97,7 @@ def auto_anno(txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_ex
   if need_trans:
     txt = en2cn(txt)
   types = txt_2_list(types_txt)
+  result = []
   if radio == '文本分类':
     result = text_classification(txt, types, prompt=cls_prompt, history=history)
     result = json.dumps(result, ensure_ascii=False)
@@ -96,7 +105,10 @@ def auto_anno(txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_ex
     result = extract_named_entities(txt, types, prompt=ner_prompt)
     result = json.dumps(result, ensure_ascii=False)
   if need_trans:
-    result = f'{txt}\n{result}'
+    if radio == '无':
+      result = txt
+    else:
+      result = f'{txt}\n{result}'
   return result
 
 with gr.Blocks() as demo:
@@ -109,7 +121,7 @@ with gr.Blocks() as demo:
             input2 = gr.Textbox(lines=3, label="输入类别", value="友好、不友好")
             cls_prompt = gr.Textbox(lines=3, label="分类提示", value='你是一个有百年经验的文本分类器，回复以下句子的分类类别，类别选项为{类别}\n{历史}输入|```{原文}```输出|', visible=False)
             ner_prompt = gr.Textbox(lines=3, label="抽取提示", value='你是一个经验丰富的命名实体抽取程序。输出标准数组json格式并且标记实体在文本中的位置\n示例输入|```联系方式：18812345678，联系地址：幸福大街20号```类型[\'手机号\', \'地址\'] 输出|[{"name": "18812345678", "type": "手机号", "start": 5, "end": 16}, {"name": "幸福大街20号", "type": "地址", "start": 5, "end": 16}]\n{历史}输入|```{原文}```类型{类别}输出|', visible=False)
-            radio = gr.Radio(["文本分类", "实体抽取"], label="算法类型", value="文本分类")
+            radio = gr.Radio(["文本分类", "实体抽取", "无"], label="算法类型", value="文本分类")
             checkbox = gr.Checkbox(label="翻译成中文")
             file_example = gr.File(label="已标注文件", type="file", accept=".txt,.tsv", container=False, elem_id="file_input_example").style()
             
