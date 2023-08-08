@@ -88,8 +88,10 @@ def auto_anno(txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_ex
   types = txt_2_list(types_txt)
   if radio == '文本分类':
     result = text_classification(txt, types, prompt=cls_prompt, history=history)
+    result = json.dumps(result, ensure_ascii=False)
   if radio == '实体抽取':
     result = extract_named_entities(txt, types, prompt=ner_prompt)
+    result = json.dumps(result, ensure_ascii=False)
   if need_trans:
     result = f'{txt}\n{result}'
   return result
