@@ -6,7 +6,8 @@ from utils.format.txt_2_list import txt_2_list
 from local_config import chat
 
 gen_prompt = "你是一个有丰富数据的文本数据集，请帮我生成10句包含或属于以下类别的文本{类别}" \
-    "\n输出格式参考：文本|类别" \
+    "\n输出格式参考：文本 | 类别" \
+    "\n例如：这个东西真好 | 好评" \
     "\n{历史}" \
     "\n以下为10句互不相关的句子："
 
@@ -43,7 +44,10 @@ def text_generate(type_arr, history=[]):
 
 
 if __name__ == '__main__':
-    # text_generate(['好评', '差评'])
-    # text_generate(['有害', '无害']) # 这个类别不好生成，会有[但是]出现，同时有害无害定义不清晰
-    type_arr = txt_2_list('政治；经济；科技；文化；娱乐；民生；军事；教育；环保；其它')
-    text_generate(type_arr, history=[['前四个月我国外贸进出口同比增长 5.8%', ['经济']]])
+    # result = text_generate(['好评', '差评'])
+    # result = text_generate(['有害', '无害']) # 这个类别不好生成，会有[但是]出现，同时有害无害定义不清晰
+    # type_arr = txt_2_list('政治；经济；科技；文化；娱乐；民生；军事；教育；环保；其它')
+    # result = text_generate(type_arr, history=[['前四个月我国外贸进出口同比增长 5.8%', ['经济']]])
+    result = text_generate(['唐诗', '宋词'])
+    # result = text_generate(['文明', '不文明'])
+    print(result)
