@@ -20,6 +20,8 @@ config = {
     }
 }
 
+import time
+import random
 # chat
 if config['api'] == 'openai':
     from utils.api.openai_api import chat_openai as chat
@@ -51,11 +53,22 @@ en_cn_cache = {}
 def en2cn(txt, use_cache=True):
     if txt.strip() == '':
         return ''
-    if txt in en_cn_cache and use_cache:
-        return en_cn_cache[txt]
-    cn = _en2cn(txt)
-    en_cn_cache[txt] = cn
-    return cn
+    try_times = 0
+    while try_times < 20:
+        try_times += 1
+        if txt in en_cn_cache and use_cache:
+            return en_cn_cache[txt]
+        try:
+            cn = _en2cn(txt)
+            en_cn_cache[txt] = cn
+            return cn
+        except Exception as e:
+            if 'qps limit error' in str(e):
+                time.sleep(random.random() * 3)
+            else:
+                print(txt, e)
+                break
+    return ''
 
 # emb
 if config['emb'] == 'yiyan':
