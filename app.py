@@ -10,6 +10,7 @@ from utils.anno.ner.entity_extract import extract_named_entities
 from utils.anno.gen.text_generate import text_generate
 from local_config import en2cn, emb, config
 from utils.format.txt_2_list import txt_2_list
+from utils.format.wash import wash_tel, wash_idcard, wash_q_2_b
 
 os.makedirs(f'tmp/emb/', exist_ok=True)
 types_md5_vector_map = {}
@@ -63,9 +64,10 @@ from concurrent.futures import ThreadPoolExecutor
 executor = ThreadPoolExecutor(max_workers=30)
 from tqdm import tqdm
 
-def thread_auto_anno(out_txts, i, pbar, txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_example=None):
+def thread_auto_anno(out_txts, i, pbar, txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, file_example=None):
   try:
-    out_anno = auto_anno(txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_example=file_example)
+    need_trans = '翻译成中文' in checkbox_group
+    out_anno = auto_anno(txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, file_example=file_example)
     if need_trans:
       if radio == '无':
         out_txt = out_anno
@@ -82,8 +84,8 @@ def thread_auto_anno(out_txts, i, pbar, txt, types_txt, radio, need_trans, cls_p
   pbar.update(1)
   return out_txts
 
-def file_auto_anno(file, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_example=None):
-  sts = time.ctime()
+def file_auto_anno(file, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, file_example=None):
+  sts = time.time()
   try:
     txts = open(file.name, 'r', encoding='utf-8').read().strip().split('\n')
   except Exception as e:
@@ -95,8 +97,8 @@ def file_auto_anno(file, types_txt, radio, need_trans, cls_prompt, ner_prompt, f
     txt = txts[i]
     if radio in ['文本分类', '实体抽取']:
       txt = txt.split('\t')[0]
-    # thread_auto_anno(out_txts, i, pbar, txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_example=file_example)
-    executor.submit(thread_auto_anno, out_txts, i, pbar, txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_example=file_example)
+    # thread_auto_anno(out_txts, i, pbar, txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, file_example=file_example)
+    executor.submit(thread_auto_anno, out_txts, i, pbar, txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, file_example=file_example)
   while len(out_txts) < txts_len:
     time.sleep(0.1)
     if time.time() - sts > 60 * 10:
@@ -106,14 +108,21 @@ def file_auto_anno(file, types_txt, radio, need_trans, cls_prompt, ner_prompt, f
   out_txts = [f'{out_txt}' for i, out_txt in out_txts]
   return '\n'.join(out_txts)
 
-def auto_anno(txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_example=None):
+def auto_anno(txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, file_example=None):
   history = []
+  need_trans = '翻译成中文' in checkbox_group
+  need_wash_tel = '手机号脱敏' in checkbox_group
+  need_wash_idcard = '身份证脱敏' in checkbox_group
   if file_example:
     if types_txt not in types_md5_vector_map:
       types_md5_vector_map[types_txt] = {}
     md5_vector_map = types_md5_vector_map[types_txt]
     load_example_file(file_example, md5_vector_map)
     history = load_similar_txt(txt, md5_vector_map)
+  if need_wash_tel:
+    txt = wash_tel(txt)
+  if need_wash_idcard:
+    txt = wash_idcard(txt)
   if need_trans:
     # 单纯翻译 .tsv 数据集
     if radio == '无':
@@ -146,8 +155,8 @@ def auto_anno(txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_ex
   return result
 
 with gr.Blocks() as demo:
-    demo.css = '#file_input_raw {height: 100px;} #file_input_raw>.w-full {padding-top: 7px;display: block;font-size: 0.5em;overflow: hidden;}' \
-      '#file_input_example {height: 100px;} #file_input_example>.w-full {padding-top: 7px;display: block;font-size: 0.5em;overflow: hidden;}'
+    demo.css = '#file_input_raw {height: 100px;overflow: hidden !important;} #file_input_raw>.w-full {padding-top: 7px;display: block;font-size: 0.5em;overflow: hidden;}' \
+      '#file_input_example {height: 100px;overflow: hidden !important;} #file_input_example>.w-full {padding-top: 7px;display: block;font-size: 0.5em;overflow: hidden;}'
     with gr.Row():
         gr.Markdown("""自动标注，大模型使用了一言千帆的api，本项目开源地址为：https://github.com/LLMLab/auto_anno""")
     with gr.Row():
@@ -156,7 +165,7 @@ with gr.Blocks() as demo:
             cls_prompt = gr.Textbox(lines=3, label="分类提示", value='你是一个有百年经验的文本分类器，回复以下句子的分类类别，类别选项为{类别}\n{历史}输入|```{原文}```输出|', visible=False)
             ner_prompt = gr.Textbox(lines=3, label="抽取提示", value='你是一个经验丰富的命名实体抽取程序。输出标准数组json格式并且标记实体在文本中的位置\n示例输入|```联系方式：18812345678，联系地址：幸福大街20号```类型[\'手机号\', \'地址\'] 输出|[{"name": "18812345678", "type": "手机号", "start": 5, "end": 16}, {"name": "幸福大街20号", "type": "地址", "start": 5, "end": 16}]\n{历史}输入|```{原文}```类型{类别}输出|', visible=False)
             radio = gr.Radio(["文本分类", "实体抽取", "数据生成", "无"], label="算法类型", value="文本分类")
-            checkbox = gr.Checkbox(label="翻译成中文")
+            checkbox_group = gr.CheckboxGroup(["翻译成中文", "手机号脱敏", "身份证脱敏"], label="数据处理", info="")
             file_example = gr.File(label="已标注文件", type="file", accept=".txt,.tsv", container=False, elem_id="file_input_example").style()
             
         with gr.Column(variant="panel"):
@@ -164,8 +173,8 @@ with gr.Blocks() as demo:
             file_raw = gr.File(label="待标注文件", type="file", accept=".txt", container=False, elem_id="file_input_raw").style()
             output = gr.Textbox(label="输出结果", lines=3)
             # 输入输出
-            inputs = [input1, input2, radio, checkbox, cls_prompt, ner_prompt, file_example]
-            file_inputs = [file_raw, input2, radio, checkbox, cls_prompt, ner_prompt, file_example]
+            inputs = [input1, input2, radio, checkbox_group, cls_prompt, ner_prompt, file_example]
+            file_inputs = [file_raw, input2, radio, checkbox_group, cls_prompt, ner_prompt, file_example]
             with gr.Row():
               btn = gr.Button("清空").style(full_width=True)
               btn2 = gr.Button("标注", visible=True, variant="primary").style(full_width=True)
@@ -175,9 +184,9 @@ with gr.Blocks() as demo:
               btn3.click(file_auto_anno, file_inputs, output)
     with gr.Row():
         gr.Examples(examples=[
-          ['前四个月我国外贸进出口同比增长 5.8%', '政治；经济；科技；文化；娱乐；民生；军事；教育；环保；其它', '文本分类', False],
-          ['There is a cat trapped on the Avenue of Happiness', '地点', '实体抽取', True],
-          ['联系方式：18812345678，联系地址：幸福大街20号', '手机号、地址', '实体抽取', False],
+          ['前四个月我国外贸进出口同比增长 5.8%', '政治；经济；科技；文化；娱乐；民生；军事；教育；环保；其它', '文本分类', [False, False, False]],
+          ['There is a cat trapped on the Avenue of Happiness', '地点', '实体抽取', [True, False, False]],
+          ['联系方式：18812345678，联系地址：幸福大街20号', '手机号、地址', '实体抽取', [False, False, False]],
         ], inputs=inputs)
 
 if __name__ == '__main__':
