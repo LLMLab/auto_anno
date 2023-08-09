@@ -116,9 +116,10 @@ def auto_anno(txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, fil
   need_wash_tel = '手机号脱敏' in checkbox_group
   need_wash_idcard = '身份证脱敏' in checkbox_group
   if file_example:
-    if types_txt not in types_md5_vector_map:
-      types_md5_vector_map[types_txt] = {}
-    md5_vector_map = types_md5_vector_map[types_txt]
+    types_key = f'{radio}:{types_txt}'
+    if types_key not in types_md5_vector_map:
+      types_md5_vector_map[types_key] = {}
+    md5_vector_map = types_md5_vector_map[types_key]
     load_example_file(file_example, md5_vector_map)
     history = load_similar_txt(txt, md5_vector_map)
   if need_wash_tel:
@@ -142,7 +143,7 @@ def auto_anno(txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, fil
     result = text_classification(txt, types, prompt=cls_prompt, history=history)
     result = json.dumps(result, ensure_ascii=False)
   if radio == '实体抽取':
-    result = extract_named_entities(txt, types, prompt=ner_prompt)
+    result = extract_named_entities(txt, types, prompt=ner_prompt, history=history)
     result = json.dumps(result, ensure_ascii=False)
   if radio == '数据生成':
     result = text_generate(types, history=[])
