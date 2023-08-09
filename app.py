@@ -115,7 +115,9 @@ def auto_anno(txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_ex
     if radio == '无':
       cn_txt = ''
       for _txt in txt.split('\t'):
-        cn_txt += en2cn(_txt) + '\t'
+        cn = en2cn(_txt)
+        cn = cn.replace('\n', ' ')
+        cn_txt += cn + '\t'
       result = cn_txt[:-1]
       return result
     else:
