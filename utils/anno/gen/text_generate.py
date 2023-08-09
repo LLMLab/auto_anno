@@ -9,7 +9,7 @@ gen_prompt = "你是一个有丰富数据的文本数据集，请帮我生成10�
     "\n输出格式参考：文本 | 类别" \
     "\n例如：这个东西真好 | 好评" \
     "\n{历史}" \
-    "\n以下为10句互不相关的句子："
+    "\n以下为10句类别为{类别}，且互不相关的句子："
 
 def text_generate(type_arr, history=[]):
     type_arr.sort(key=lambda x: len(x), reverse=True) # 从长倒短排序，有限匹配长的，防止包含短的重复匹配，如：不好，好
