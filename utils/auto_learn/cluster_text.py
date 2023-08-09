@@ -2,17 +2,17 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from sklearn.metrics.pairwise import euclidean_distances
-import openai
 import numpy as np
 import random
 import sys
 sys.path.append('.')
+from local_config import emb, config
+openai_key = config['openai']['key']
 
-EMBEDDING_BY = 'openai' # openai | bert
+EMBEDDING_BY = 'yiyan' # openai | bert
 
 if EMBEDDING_BY == 'openai':
     import openai
-    from local_config import openai_key
 elif EMBEDDING_BY == 'bert':
     from transformers import AutoTokenizer, AutoModelForMaskedLM
     tokenizer = AutoTokenizer.from_pretrained("bert-base-chinese")
@@ -33,6 +33,8 @@ def get_embedding(text, by=EMBEDDING_BY):
 
         embedding = torch.mean(output[0], dim=1).squeeze(0)
         return embedding.detach().numpy()
+    else:
+        return emb(text)
     return None
 
 def cluster_text(text_list, n_clusters=20):
