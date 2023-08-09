@@ -83,6 +83,7 @@ def thread_auto_anno(out_txts, i, pbar, txt, types_txt, radio, need_trans, cls_p
   return out_txts
 
 def file_auto_anno(file, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_example=None):
+  sts = time.ctime()
   try:
     txts = open(file.name, 'r', encoding='utf-8').read().strip().split('\n')
   except Exception as e:
@@ -98,6 +99,9 @@ def file_auto_anno(file, types_txt, radio, need_trans, cls_prompt, ner_prompt, f
     executor.submit(thread_auto_anno, out_txts, i, pbar, txt, types_txt, radio, need_trans, cls_prompt, ner_prompt, file_example=file_example)
   while len(out_txts) < txts_len:
     time.sleep(0.1)
+    if time.time() - sts > 60 * 10:
+      print('耗时超过10分钟，已翻译的数据已缓存，请稍后再试')
+      break
   out_txts.sort(key=lambda x: x[0])
   out_txts = [f'{out_txt}' for i, out_txt in out_txts]
   return '\n'.join(out_txts)
