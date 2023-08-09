@@ -42,7 +42,7 @@ def load_example_file(file_example, md5_vector_map):
       pkl.dump(types_md5_vector_map, open(emb_pkl_path, 'wb'))
   except Exception as e:
     print(e)
-    print('示例文件解析失败，请一行为一条数据，输入和输出用\t分割')
+    print('已标注文件解析失败，请一行为一条数据，输入和输出用\t分割')
 
 def load_similar_txt(txt, md5_vector_map):
   vector = emb(txt)
@@ -86,7 +86,7 @@ def file_auto_anno(file, types_txt, radio, need_trans, cls_prompt, ner_prompt, f
   try:
     txts = open(file.name, 'r', encoding='utf-8').read().strip().split('\n')
   except Exception as e:
-    return '请上传txt文件，其中每一行都为一句待标注原文'
+    return '请上传 .txt/.tsv 文件，其中每一行都为一句待标注原文'
   out_txts = []
   txts_len = len(txts)
   pbar = tqdm(total=txts_len)
