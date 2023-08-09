@@ -3,6 +3,7 @@ import json
 import os
 import numpy as np
 import time
+import re
 
 from utils.anno.cls.text_classification import text_classification
 from utils.anno.ner.entity_extract import extract_named_entities
@@ -31,7 +32,10 @@ def load_example_file(file_example, md5_vector_map):
     else:
       train_txts = open(file_example.name, 'r', encoding='utf-8').read().strip().split('\n')
     for train_txt in train_txts:
-      qa = train_txt.split('\t')
+      split_key = '[\t\|]'
+      qa = re.compile(split_key).split(train_txt)
+      if len(qa) < 2:
+        qa.append('')
       q = qa[0]
       a = qa[1]
       if q not in md5_vector_map or md5_vector_map[q]['a'] != a:
