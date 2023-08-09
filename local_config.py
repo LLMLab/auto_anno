@@ -22,6 +22,21 @@ config = {
 
 import time
 import random
+
+def try_more(fn, *args):
+    try_times = 0
+    while try_times < 20:
+        try:
+            try_times += 1
+            content = fn(*args)
+            return content
+        except Exception as e:
+            if 'qps limit error' in str(e):
+                time.sleep(random.random() * 3)
+            else:
+                print(fn, *args, e)
+    return ''
+
 # chat
 if config['api'] == 'openai':
     from utils.api.openai_api import chat_openai as _chat
@@ -38,18 +53,7 @@ elif config['api'] == 'xunfei':
 else:
     raise Exception('api not supported')
 def chat(prompt):
-    try_times = 0
-    while try_times < 20:
-        try:
-            try_times += 1
-            content = _chat(prompt)
-            return content
-        except Exception as e:
-            if 'qps limit error' in str(e):
-                time.sleep(random.random() * 3)
-            else:
-                print(prompt, e)
-    return ''
+    return try_more(_chat, prompt)
 # en2cn
 if config['en2cn'] == 'google_trans':
     from utils.api.google_trans import en2cn_google as _en2cn
@@ -67,7 +71,7 @@ def en2cn(txt, use_cache=True):
         return ''
     if txt in en_cn_cache and use_cache:
         return en_cn_cache[txt]
-    cn = _en2cn(txt)
+    cn = try_more(_en2cn, txt)
     en_cn_cache[txt] = cn
     return cn
 
