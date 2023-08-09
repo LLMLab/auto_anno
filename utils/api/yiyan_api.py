@@ -11,23 +11,34 @@ def chat_yiyan(prompt, his=[], prompt_his_str='你：{}\n分身：{}'):
             {"role": "user", "content": prompt}
         ]
     })
-    return result.json()['result']
+    res_j = result.json()
+    if 'result' in res_j:
+        return res_j['result']
+    if res_j['error_code'] == 18:
+        raise Exception('qps limit error')
+    print(res_j)
+    raise Exception('chat error')
 
 def en2cn_yiyan(prompt):
     Q_motif = f'你是一个有百年经验的英汉翻译官，请你翻译以下句子\n{prompt}\n翻译结果为：'
     result=chat_yiyan(Q_motif)
     return result
 
-def emb_yiyan(prompts):
-    if str(type(prompts)) == "<class 'str'>":
-        prompts = [prompts]
+def emb_yiyan(txt):
+    if type(txt) == str:
+        txts = [txt]
+    else:
+        txts = txt
     # curl 'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=[API Key]&client_secret=[Secret Key]'
     access_token = config['yiyan']['access_token']
     url = f'https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/embeddings/embedding-v1?access_token={access_token}'
     result = requests.post(url, json={
-        "input": prompts
+        "input": txts
     })
-    return [d['embedding'] for d in result.json()['data']]
+    vectors = [d['embedding'] for d in result.json()['data']]
+    if type(txt) == str:
+        return vectors[0]
+    return vectors
 
 if __name__ == '__main__':
     print(chat_yiyan('你能做什么'))
