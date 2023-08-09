@@ -20,7 +20,7 @@ def text_classification(src_txt, type_arr, history=[], chat=chat, prompt=cls_pro
     _blocks = []
     for b in blocks:
         is_bad = False
-        for not_tip in ['无法', '不属于']:
+        for not_tip in ['无法', '不属于', '不是']:
             if not_tip in b:
                 is_bad = True
                 break
