@@ -30,6 +30,7 @@ def text_generate(type_arr, history=[]):
         for type in type_arr:
             if type in _l:
                 _l = _l.replace(type, '')
+                l = l.replace(f'({type})', '') # 从原文中删去类别在括号中的情况
                 has_type_arr.append(type)
         # for type in has_type_arr:
         #     split_reg = '[\.,，。]'
