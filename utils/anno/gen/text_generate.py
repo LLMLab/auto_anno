@@ -21,6 +21,7 @@ def text_generate(type_arr, history=[]):
     # Check out in type_arr
     result = []
     content = re.sub(r'^\n\|', '|', content, flags=re.MULTILINE) # 防止标签换行
+    content = content.replace('\n\n', '\n')
     ls = content.split('\n')
     for l in ls:
         _l = l
