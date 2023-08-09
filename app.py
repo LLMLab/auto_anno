@@ -27,7 +27,10 @@ def md5(txt):
 def load_example_file(file_example, md5_vector_map):
   try:
     is_emb_update = False
-    train_txts = open(file_example.name, 'r', encoding='utf-8').read().strip().split('\n')
+    if type(file_example) == str:
+      train_txts = file_example.strip().split('\n')
+    else:
+      train_txts = open(file_example.name, 'r', encoding='utf-8').read().strip().split('\n')
     for train_txt in train_txts:
       q, a = train_txt.split('\t')
       md5_txt = md5(train_txt)
@@ -68,13 +71,12 @@ def thread_auto_anno(out_txts, i, pbar, txt, types_txt, radio, checkbox_group, c
   try:
     need_trans = '翻译成中文' in checkbox_group
     out_anno = auto_anno(txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, file_example=file_example)
-    if need_trans:
-      if radio == '无':
-        out_txt = out_anno
-      else:
-        _out_anno = out_anno.split('\n')[-1]
-        _txt = out_anno.replace('\n'+_out_anno, '')
-        out_txt = f'{_txt}\t{_out_anno}'
+    if radio in ['无', '数据生成']:
+      out_txt = out_anno
+    elif need_trans:
+      _out_anno = out_anno.split('\n')[-1]
+      _txt = out_anno.replace('\n'+_out_anno, '')
+      out_txt = f'{_txt}\t{_out_anno}'
     else:
       out_txt = f'{txt}\t{out_anno}'
     out_txts.append([i, out_txt])
@@ -87,9 +89,12 @@ def thread_auto_anno(out_txts, i, pbar, txt, types_txt, radio, checkbox_group, c
 def file_auto_anno(file, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, file_example=None):
   sts = time.time()
   try:
-    txts = open(file.name, 'r', encoding='utf-8').read().strip().split('\n')
+    if type(file) == str:
+      txts = file.strip().split('\n')
+    else:
+      txts = open(file.name, 'r', encoding='utf-8').read().strip().split('\n')
   except Exception as e:
-    return '请上传 .txt/.tsv 文件，其中每一行都为一句待标注原文'
+    return '请输入待标注内容，其中每一行都为一句待标注原文'
   out_txts = []
   txts_len = len(txts)
   pbar = tqdm(total=txts_len)
@@ -97,8 +102,8 @@ def file_auto_anno(file, types_txt, radio, checkbox_group, cls_prompt, ner_promp
     txt = txts[i]
     if radio in ['文本分类', '实体抽取']:
       txt = txt.split('\t')[0]
-    # thread_auto_anno(out_txts, i, pbar, txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, file_example=file_example)
-    executor.submit(thread_auto_anno, out_txts, i, pbar, txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, file_example=file_example)
+    thread_auto_anno(out_txts, i, pbar, txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, file_example=file_example)
+    # executor.submit(thread_auto_anno, out_txts, i, pbar, txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, file_example=file_example)
   while len(out_txts) < txts_len:
     time.sleep(0.1)
     if time.time() - sts > 60 * 10:
@@ -148,7 +153,7 @@ def auto_anno(txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, fil
     result = [r[0] + '\t' + json.dumps(r[1], ensure_ascii=False) for r in result]
     result = '\n'.join(result)
   if need_trans:
-    if radio == '无':
+    if radio in ['无', '数据生成']:
       result = txt
     else:
       result = f'{txt}\n{result}'
@@ -164,24 +169,20 @@ with gr.Blocks() as demo:
             input2 = gr.Textbox(lines=3, label="输入类别", value="友好、不友好")
             cls_prompt = gr.Textbox(lines=3, label="分类提示", value='你是一个有百年经验的文本分类器，回复以下句子的分类类别，类别选项为{类别}\n{历史}输入|```{原文}```输出|', visible=False)
             ner_prompt = gr.Textbox(lines=3, label="抽取提示", value='你是一个经验丰富的命名实体抽取程序。输出标准数组json格式并且标记实体在文本中的位置\n示例输入|```联系方式：18812345678，联系地址：幸福大街20号```类型[\'手机号\', \'地址\'] 输出|[{"name": "18812345678", "type": "手机号", "start": 5, "end": 16}, {"name": "幸福大街20号", "type": "地址", "start": 5, "end": 16}]\n{历史}输入|```{原文}```类型{类别}输出|', visible=False)
-            radio = gr.Radio(["文本分类", "实体抽取", "数据生成", "无"], label="算法类型", value="文本分类")
             checkbox_group = gr.CheckboxGroup(["翻译成中文", "手机号脱敏", "身份证脱敏"], label="数据处理", info="")
-            file_example = gr.File(label="已标注文件", type="file", accept=".txt,.tsv", container=False, elem_id="file_input_example").style()
+            radio = gr.Radio(["文本分类", "实体抽取", "数据生成", "无"], label="算法类型", value="文本分类")
+            file_example = gr.Textbox(lines=3, label="已标注文本", value="")
             
         with gr.Column(variant="panel"):
             input1 = gr.Textbox(lines=3, label="待标注文本", value="Hello world!")
-            file_raw = gr.File(label="待标注文件", type="file", accept=".txt", container=False, elem_id="file_input_raw").style()
             output = gr.Textbox(label="输出结果", lines=3)
             # 输入输出
             inputs = [input1, input2, radio, checkbox_group, cls_prompt, ner_prompt, file_example]
-            file_inputs = [file_raw, input2, radio, checkbox_group, cls_prompt, ner_prompt, file_example]
             with gr.Row():
               btn = gr.Button("清空").style(full_width=True)
               btn2 = gr.Button("标注", visible=True, variant="primary").style(full_width=True)
-              btn3 = gr.Button("标注文件", visible=True).style(full_width=True)
               btn.click(lambda: "", [], output)
-              btn2.click(auto_anno, inputs, output)
-              btn3.click(file_auto_anno, file_inputs, output)
+              btn2.click(file_auto_anno, inputs, output)
     with gr.Row():
         gr.Examples(examples=[
           ['前四个月我国外贸进出口同比增长 5.8%', '政治；经济；科技；文化；娱乐；民生；军事；教育；环保；其它', '文本分类', [False, False, False]],
