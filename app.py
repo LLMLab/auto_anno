@@ -150,7 +150,7 @@ def auto_anno(txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, fil
     result = extract_named_entities(txt, types, prompt=ner_prompt, history=history)
     result = json.dumps(result, ensure_ascii=False)
   if radio == '数据生成':
-    result = text_generate(types, history=[])
+    result = text_generate(types, history=history)
     result = [r[0] + '\t' + json.dumps(r[1], ensure_ascii=False) for r in result]
     result = '\n'.join(result)
   return result, txt
