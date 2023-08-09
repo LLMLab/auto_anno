@@ -1,7 +1,6 @@
 import gradio as gr
 import json
 import os
-import pickle as pkl
 import numpy as np
 import time
 
@@ -14,9 +13,9 @@ from utils.format.wash import wash_tel, wash_idcard, wash_q_2_b
 
 os.makedirs(f'tmp/emb/', exist_ok=True)
 types_md5_vector_map = {}
-emb_pkl_path = f'tmp/emb/{config["emb"]}.pkl'
-if os.path.exists(emb_pkl_path):
-  types_md5_vector_map = pkl.load(open(emb_pkl_path, 'rb'))
+emb_json_path = f'tmp/emb/{config["emb"]}.json'
+if os.path.exists(emb_json_path):
+  types_md5_vector_map = json.load(open(emb_json_path, 'r', encoding='utf-8'))
 
 def md5(txt):
   import hashlib
@@ -32,18 +31,19 @@ def load_example_file(file_example, md5_vector_map):
     else:
       train_txts = open(file_example.name, 'r', encoding='utf-8').read().strip().split('\n')
     for train_txt in train_txts:
-      q, a = train_txt.split('\t')
-      md5_txt = md5(train_txt)
-      if md5_txt not in md5_vector_map:
+      qa = train_txt.split('\t')
+      q = qa[0]
+      a = qa[1]
+      if q not in md5_vector_map or md5_vector_map[q]['a'] != a:
         is_emb_update = True
         vector = emb(q)
-        md5_vector_map[md5_txt] = {
+        md5_vector_map[q] = {
           'vector': vector,
           'q': q,
           'a': a
         }
     if is_emb_update:
-      pkl.dump(types_md5_vector_map, open(emb_pkl_path, 'wb'))
+      json.dump(types_md5_vector_map, open(emb_json_path, 'w', encoding='utf-8'), ensure_ascii=False, indent=2)
   except Exception as e:
     print(e)
     print('已标注文件解析失败，请一行为一条数据，输入和输出用\t分割')
@@ -69,14 +69,9 @@ from tqdm import tqdm
 
 def thread_auto_anno(out_txts, i, pbar, txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, file_example=None):
   try:
-    need_trans = '翻译成中文' in checkbox_group
-    out_anno = auto_anno(txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, file_example=file_example)
+    out_anno, txt = auto_anno(txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, file_example=file_example)
     if radio in ['无', '数据生成']:
       out_txt = out_anno
-    elif need_trans:
-      _out_anno = out_anno.split('\n')[-1]
-      _txt = out_anno.replace('\n'+_out_anno, '')
-      out_txt = f'{_txt}\t{_out_anno}'
     else:
       out_txt = f'{txt}\t{out_anno}'
     out_txts.append([i, out_txt])
@@ -152,12 +147,7 @@ def auto_anno(txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, fil
     result = text_generate(types, history=[])
     result = [r[0] + '\t' + json.dumps(r[1], ensure_ascii=False) for r in result]
     result = '\n'.join(result)
-  if need_trans:
-    if radio in ['无', '数据生成']:
-      result = txt
-    else:
-      result = f'{txt}\n{result}'
-  return result
+  return result, txt
 
 with gr.Blocks() as demo:
     demo.css = '#file_input_raw {height: 100px;overflow: hidden !important;} #file_input_raw>.w-full {padding-top: 7px;display: block;font-size: 0.5em;overflow: hidden;}' \
@@ -185,9 +175,9 @@ with gr.Blocks() as demo:
               btn2.click(file_auto_anno, inputs, output)
     with gr.Row():
         gr.Examples(examples=[
-          ['前四个月我国外贸进出口同比增长 5.8%', '政治；经济；科技；文化；娱乐；民生；军事；教育；环保；其它', '文本分类', [False, False, False]],
-          ['There is a cat trapped on the Avenue of Happiness', '地点', '实体抽取', [True, False, False]],
-          ['联系方式：18812345678，联系地址：幸福大街20号', '手机号、地址', '实体抽取', [False, False, False]],
+          ['前四个月我国外贸进出口同比增长 5.8%', '政治；经济；科技；文化；娱乐；民生；军事；教育；环保；其它', '文本分类', []],
+          ['There is a cat trapped on the Avenue of Happiness', '地点', '实体抽取', ['翻译成中文']],
+          ['联系方式：18812345678，联系地址：幸福大街20号', '手机号、地址', '实体抽取', ['手机号脱敏']],
         ], inputs=inputs)
 
 if __name__ == '__main__':
