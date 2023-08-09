@@ -24,20 +24,32 @@ import time
 import random
 # chat
 if config['api'] == 'openai':
-    from utils.api.openai_api import chat_openai as chat
+    from utils.api.openai_api import chat_openai as _chat
 elif config['api'] == 'chatglm_paddle':
-    from utils.api.chatglm_paddle import chat_chatglm_paddle as chat
+    from utils.api.chatglm_paddle import chat_chatglm_paddle as _chat
 elif config['api'] == 'chatglm':
-    from utils.api.chatglm_api import chat_chatglm as chat
+    from utils.api.chatglm_api import chat_chatglm as _chat
 elif config['api'] == 'yiyan':
-    from utils.api.yiyan_api import chat_yiyan as chat
+    from utils.api.yiyan_api import chat_yiyan as _chat
 elif config['api'] == 'xunfei':
-    from utils.api.xunfei_api import chat_xunfei as chat
+    from utils.api.xunfei_api import chat_xunfei as _chat
 elif config['api'] == 'xunfei':
-    from utils.api.xunfei_api import chat_xunfei as chat
+    from utils.api.xunfei_api import chat_xunfei as _chat
 else:
     raise Exception('api not supported')
-
+def chat(prompt):
+    try_times = 0
+    while try_times < 20:
+        try:
+            try_times += 1
+            content = _chat(prompt)
+            return content
+        except Exception as e:
+            if 'qps limit error' in str(e):
+                time.sleep(random.random() * 3)
+            else:
+                print(prompt, e)
+    return ''
 # en2cn
 if config['en2cn'] == 'google_trans':
     from utils.api.google_trans import en2cn_google as _en2cn
@@ -53,22 +65,11 @@ en_cn_cache = {}
 def en2cn(txt, use_cache=True):
     if txt.strip() == '':
         return ''
-    try_times = 0
-    while try_times < 20:
-        try_times += 1
-        if txt in en_cn_cache and use_cache:
-            return en_cn_cache[txt]
-        try:
-            cn = _en2cn(txt)
-            en_cn_cache[txt] = cn
-            return cn
-        except Exception as e:
-            if 'qps limit error' in str(e):
-                time.sleep(random.random() * 3)
-            else:
-                print(txt, e)
-                break
-    return ''
+    if txt in en_cn_cache and use_cache:
+        return en_cn_cache[txt]
+    cn = _en2cn(txt)
+    en_cn_cache[txt] = cn
+    return cn
 
 # emb
 if config['emb'] == 'yiyan':
