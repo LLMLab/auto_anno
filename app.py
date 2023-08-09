@@ -11,6 +11,7 @@ from utils.anno.gen.text_generate import text_generate
 from local_config import en2cn, emb, config
 from utils.format.txt_2_list import txt_2_list
 from utils.format.wash import wash_tel, wash_idcard, wash_q_2_b
+from utils.auto_learn.cluster_text import cluster_text
 
 os.makedirs(f'tmp/emb/', exist_ok=True)
 types_md5_vector_map = {}
@@ -97,6 +98,9 @@ def file_auto_anno(file, types_txt, radio, checkbox_group, cls_prompt, ner_promp
   except Exception as e:
     return '请输入待标注内容，其中每一行都为一句待标注原文'
   out_txts = []
+  if radio == '聚类择优':
+    result = cluster_text(txts, n_clusters=5)
+    return '\n'.join(result)
   txts_len = len(txts)
   pbar = tqdm(total=txts_len)
   for i in range(txts_len):
@@ -166,7 +170,7 @@ with gr.Blocks() as demo:
             cls_prompt = gr.Textbox(lines=3, label="分类提示", value='你是一个有百年经验的文本分类器，回复以下句子的分类类别，类别选项为{类别}\n{历史}输入|```{原文}```输出|', visible=False)
             ner_prompt = gr.Textbox(lines=3, label="抽取提示", value='你是一个经验丰富的命名实体抽取程序。输出标准数组json格式并且标记实体在文本中的位置\n示例输入|```联系方式：188****5678，联系地址：幸福大街20号```类型[\'手机号\', \'地址\'] 输出|[{"name": "188****5678", "type": "手机号", "start": 5, "end": 16}, {"name": "幸福大街20号", "type": "地址", "start": 5, "end": 16}]\n{历史}输入|```{原文}```类型{类别}输出|', visible=False)
             checkbox_group = gr.CheckboxGroup(["翻译成中文", "手机号脱敏", "身份证脱敏"], label="数据处理", info="")
-            radio = gr.Radio(["文本分类", "实体抽取", "数据生成", "无"], label="算法类型", value="文本分类")
+            radio = gr.Radio(["数据生成", "聚类择优", "文本分类", "实体抽取", "无"], label="算法类型", value="文本分类")
             file_example = gr.Textbox(lines=3, label="已标注文本", value="")
             
         with gr.Column(variant="panel"):
