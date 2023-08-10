@@ -25,20 +25,28 @@ def md5(txt):
   m.update(txt.encode('utf-8'))
   return m.hexdigest()
 
+def get_txts(file):
+  if type(file) == str:
+    txts = file.strip().split('\n')
+  else:
+    txts = open(file.name, 'r', encoding='utf-8').read().strip().split('\n')
+  return txts
+
+def get_qa(txt):
+  split_key = '[\t\|]'
+  qa = re.compile(split_key).split(txt)
+  if len(qa) < 2:
+    qa.append('')
+  q = qa[0]
+  a = qa[1]
+  return q, a
+
 def load_example_file(file_example, md5_vector_map):
   try:
     is_emb_update = False
-    if type(file_example) == str:
-      train_txts = file_example.strip().split('\n')
-    else:
-      train_txts = open(file_example.name, 'r', encoding='utf-8').read().strip().split('\n')
+    train_txts = get_txts(file_example)
     for train_txt in train_txts:
-      split_key = '[\t\|]'
-      qa = re.compile(split_key).split(train_txt)
-      if len(qa) < 2:
-        qa.append('')
-      q = qa[0]
-      a = qa[1]
+      q, a = get_qa(train_txt)
       if q not in md5_vector_map or md5_vector_map[q]['a'] != a:
         is_emb_update = True
         vector = emb(q)
@@ -53,11 +61,14 @@ def load_example_file(file_example, md5_vector_map):
     print(e)
     print('已标注文件解析失败，请一行为一条数据，输入和输出用\t分割')
 
-def load_similar_txt(txt, md5_vector_map):
+def load_similar_txt(txt, md5_vector_map, sample_txts):
   vector = emb(txt)
   vec_score_arr = []
-  for k in md5_vector_map:
-    vector_info = md5_vector_map[k]
+  for _txt in sample_txts:
+    q, _ = get_qa(_txt)
+    if q not in md5_vector_map:
+      continue
+    vector_info = md5_vector_map[q]
     t_vector = vector_info['vector']
     similar_score = np.dot(t_vector, vector)
     vec_score_arr.append((vector_info, similar_score))
@@ -129,7 +140,8 @@ def auto_anno(txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, fil
       types_md5_vector_map[types_key] = {}
     md5_vector_map = types_md5_vector_map[types_key]
     load_example_file(file_example, md5_vector_map)
-    history = load_similar_txt(txt, md5_vector_map)
+    sample_txts = get_txts(file_example)
+    history = load_similar_txt(txt, md5_vector_map, sample_txts)
   if need_wash_tel:
     txt = wash_tel(txt)
   if need_wash_idcard:
