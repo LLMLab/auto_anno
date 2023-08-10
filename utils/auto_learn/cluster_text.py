@@ -38,6 +38,8 @@ def get_embedding(text, by=EMBEDDING_BY):
     return None
 
 def cluster_text(text_list, n_clusters=20):
+    if n_clusters >= len(text_list):
+        return text_list
     # Convert text_list to numerical data
     data = []
     for text in text_list:
