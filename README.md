@@ -22,7 +22,7 @@ OpenAI-api、ChatGLM、文心一言-千帆api、讯飞星火-SparkApi
 ```shell
 git clone https://github.com/LLMLab/auto_anno.git
 cd auto_anno
-python app.py
+python app.gradio.py
 ```
 
 ## 贡献名单
