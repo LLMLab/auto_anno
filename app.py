@@ -18,6 +18,8 @@ types_md5_vector_map = {}
 emb_json_path = f'tmp/emb/{config["emb"]}.json'
 if os.path.exists(emb_json_path):
   types_md5_vector_map = json.load(open(emb_json_path, 'r', encoding='utf-8'))
+os.makedirs('tmp/anno/', exist_ok=True)
+app_t = int(time.time())
 
 def md5(txt):
   import hashlib
@@ -169,6 +171,13 @@ def auto_anno(txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, fil
     result = text_generate(types, history=history)
     result = [r[0] + '\t' + json.dumps(r[1], ensure_ascii=False) for r in result]
     result = '\n'.join(result)
+    txt = ''
+  try:
+    # 记录数据
+    app_types = '、'.join(types)
+    open(f'tmp/anno/{app_t}_{radio}_{app_types}.tsv', 'a', encoding='utf-8').write(f'{txt}\t{result}'.strip() + '\n')
+  except:
+    pass
   return result, txt
 
 with gr.Blocks() as demo:
