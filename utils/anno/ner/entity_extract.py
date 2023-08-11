@@ -22,6 +22,7 @@ def extract_named_entities(src_txt, type_arr, history=[], chat=chat, prompt=ner_
     # 跨行替换
     content = re.sub(r'\][^紒]*', ']', content)
     content = re.sub(r'[^紒]*\[', '[', content)
+    content = re.sub(r'\\', '', content)
     j = json.loads(content)
     result = []
     j.sort(key=lambda x: x['start']*1000+x['end'])
