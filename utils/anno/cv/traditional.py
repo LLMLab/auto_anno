@@ -5,11 +5,9 @@ from pathlib import Path
 
 DEBUG_ON = True
 
-
 def write_image(path_name, mat):
     if DEBUG_ON:
         cv2.imwrite(path_name, mat)
-
 
 file_string_output_root = "./imgOut/"
 
@@ -26,7 +24,8 @@ class Rectangle:
 # 检测结果结构体
 class DetectionResult:
     def __init__(self):
-        self.rectangles = []
+        self.rect_angles = []
+        self.contours = []
 
 # 图像预处理参数，用于分割
 class PreProcessParams:
@@ -46,6 +45,20 @@ class PreProcessParams:
         self.imgProcessAda = False
 
 Path = str
+
+preProcessParams = PreProcessParams()
+preProcessParams.adaGray = 190
+preProcessParams.minGray = 220
+preProcessParams.maxGray = 255
+preProcessParams.closRadius = 2
+preProcessParams.openRadius = 2
+preProcessParams.adaSize = 81
+preProcessParams.offset = -15
+preProcessParams.processBright = True  # Find white objects
+preProcessParams.processDark = False  # Find dark objects
+preProcessParams.imgProcessCloseing = True  # Enable closing operation
+preProcessParams.imgProcessOpening = True  # Enable opening operation
+preProcessParams.imgProcessAda = True  # Enable adaptive thresholding
 
 def imgPreProcess(imgGray, preProcessParams):
     imgBright = np.zeros_like(imgGray)
@@ -128,10 +141,9 @@ def imgPreProcess(imgGray, preProcessParams):
     return img
 
 
-def Detection(imgGray, preProcessParams, result):
+def traditional_detect(imgGray, preProcessParams=preProcessParams, result=DetectionResult()):
 
     # Convert grayscale image to BGR
-    img = cv2.cvtColor(imgGray, cv2.COLOR_GRAY2BGR)
     img = imgPreProcess(imgGray, preProcessParams)
 
     # 找轮廓
@@ -147,38 +159,25 @@ def Detection(imgGray, preProcessParams, result):
     areaThre = 400
     widthThre = 30
     heightThre = 30
-    result.Rectangles = []
+    result.rect_angles = []
     for i in range(len(contours)):
         if hierarchy[i][3] == -1 and cv2.contourArea(contours[i]) > areaThre and cv2.arcLength(contours[i], True) > widthThre and cv2.arcLength(contours[i], True) > heightThre:
             rectangle = {}
             (rectangle['x'], rectangle['y']), (rectangle['width'], rectangle['height']), rectangle['angle'] = cv2.minAreaRect(
                 contours[i])
-            result.Rectangles.append(rectangle)
-            # cv2.drawContours(imgGray, contours, i, (255, 0, 0), 8)
-            cv2.drawContours(imgGray, contours, i, (0, 0, 255), 8)
-
-    cv2.imwrite(file_string_output_root + "imgDrawContours.png", imgGray)
-
+            result.rect_angles.append(rectangle)
+            # cv2.drawContours(imgGray, contours, i, (0, 0, 255), 8)
+    result.contours = [c.tolist() for c in contours]
+    # cv2.imwrite(file_string_output_root + "imgDrawContours.png", imgGray)
+    return result
 
 def main():
     svmfilestring = "./imgOut/"
     # Convert to grayscale
     imgGray = Image.open(svmfilestring + "standard.bmp").convert('L')
     result = DetectionResult()
-    preProcessParams = PreProcessParams()
-    preProcessParams.adaGray = 190
-    preProcessParams.minGray = 220
-    preProcessParams.maxGray = 255
-    preProcessParams.closRadius = 2
-    preProcessParams.openRadius = 2
-    preProcessParams.adaSize = 81
-    preProcessParams.offset = -15
-    preProcessParams.processBright = True  # Find white objects
-    preProcessParams.processDark = False  # Find dark objects
-    preProcessParams.imgProcessCloseing = True  # Enable closing operation
-    preProcessParams.imgProcessOpening = True  # Enable opening operation
-    preProcessParams.imgProcessAda = True  # Enable adaptive thresholding
-    Detection(np.array(imgGray), preProcessParams, result)
+    traditional_detect(np.array(imgGray), preProcessParams, result)
+    print(result.rect_angles)
 
 
 if __name__ == "__main__":
