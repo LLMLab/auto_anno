@@ -144,6 +144,8 @@ def auto_anno(txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, fil
     load_example_file(file_example, md5_vector_map)
     sample_txts = get_txts(file_example)
     history = load_similar_txt(txt, md5_vector_map, sample_txts)
+    while len(json.dumps(history)) > 1500:
+      history = history[:-1]
   if need_wash_tel:
     txt = wash_tel(txt)
   if need_wash_idcard:
