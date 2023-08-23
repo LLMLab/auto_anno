@@ -1,7 +1,7 @@
 config = {
-    'api': 'yiyan', # openai | chatglm_paddle | chatglm | yiyan | xunfei
-    'en2cn': 'yiyan', # google_trans | chatglm_paddle | yiyan | xunfei
-    'emb': 'yiyan', # yiyan | xunfei
+    'api': 'yiyan', # openai | chatglm_paddle | chatglm | yiyan | xunfei | aistudio
+    'en2cn': 'yiyan', # google_trans | chatglm_paddle | yiyan | xunfei | aistudio
+    'emb': 'yiyan', # yiyan | xunfei | aistudio
     'openai': {
         'key': [
             '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',
@@ -17,6 +17,11 @@ config = {
         'appid': '',
         'api_secret': '',
         'api_key': ''
+    },
+    'aistudio': {
+        'WEBIDE_USERID': '',
+        'STUDIO_MODEL_API_URL_PREFIX': 'https://aistudio.baidu.com',
+        'STUDIO_MODEL_API_SDK_USER_JWT_TOKEN': ''
     }
 }
 
@@ -50,6 +55,8 @@ elif config['api'] == 'xunfei':
     from utils.api.xunfei_api import chat_xunfei as _chat
 elif config['api'] == 'xunfei':
     from utils.api.xunfei_api import chat_xunfei as _chat
+elif config['api'] == 'aistudio':
+    from utils.api.aistudio_api import chat_aistudio as _chat
 else:
     raise Exception('api not supported')
 def chat(prompt):
@@ -63,6 +70,8 @@ elif config['en2cn'] == 'yiyan':
     from utils.api.yiyan_api import en2cn_yiyan as _en2cn
 elif config['en2cn'] == 'xunfei':
     from utils.api.xunfei_api import en2cn_xunfei as _en2cn
+elif config['en2cn'] == 'aistudio':
+    from utils.api.aistudio_api import en2cn_aistudio as _en2cn
 else:
     raise Exception('en2cn not supported')
 en_cn_cache = {}
@@ -80,5 +89,7 @@ if config['emb'] == 'yiyan':
     from utils.api.yiyan_api import emb_yiyan as emb
 elif config['emb'] == 'xunfei':
     from utils.api.xunfei_api import emb_xunfei as emb
+elif config['emb'] == 'aistudio':
+    from utils.api.aistudio_api import emb_aistudio as emb
 else:
     raise Exception('emb not supported')
