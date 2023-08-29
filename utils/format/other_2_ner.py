@@ -93,11 +93,20 @@ def llm_2_json(fn):
     print(len(input_set))
     print(len(type_set))
 
-def json_2_json(fn, trans_fun):
-    ls = open(fn, 'r', encoding='utf-8').read().strip().split('\n')
+def json_2_json(fn, trans_fun, ls_fun=None):
+    src = open(fn, 'r', encoding='utf-8').read().strip()
+    if ls_fun:
+        ls = ls_fun(src)
+    elif src[0] == '[':
+        ls = json.loads(src)
+    else:
+        ls = src.split('\n')
     out_ls = []
     for l in ls:
-        j = json.loads(l)
+        if type(l) == str:
+            j = json.loads(l)
+        else:
+            j = l
         out_j = {
             'types': trans_fun['types'](j),
             'annos': trans_fun['annos'](j),
@@ -111,9 +120,37 @@ if __name__ == "__main__":
     # fn = 'E:/NLP/NER/KnowLM-IE.json'
     # fn = 'E:/NLP/NER/48_ner_knowlm-ke_ner_train.json'
     # llm_2_json(fn)
-    fn = 'E:/NLP/NER/03_ner_yidu_s4k_subtask1_training_part.json'
+    # fn = 'E:/NLP/NER/03_ner_yidu_s4k_subtask1_training_part.json'
+    # json_2_json(fn, trans_fun={
+    #     'types': lambda j: list(set([entity['label_type'] for entity in j['entities']])),
+    #     'annos': lambda j: [[j['originalText'][entity['start_pos']:entity['end_pos']] , entity['label_type'], entity['start_pos']] for entity in j['entities']],
+    #     'input': lambda j: j['originalText'],
+    # })
+    # fn = 'E:/NLP/NER/05_ner_medical_ner_entities.json'
+    # json_2_json(fn, trans_fun={
+    #     'types': lambda j: list(set([entity['label'] for entity in j['annotations']])),
+    #     'annos': lambda j: [[entity['entity'] , entity['label'], entity['start_offset']] for entity in j['annotations']],
+    #     'input': lambda j: j['text'],
+    # })
+    # fn = 'E:/NLP/NER/06_ner_MedDG_train.json'
+    # types = 'Symptom Medicine Test Attribute Disease'.split(' ')
+    # def get_annos(j):
+    #     annos = []
+    #     for type in types:
+    #         if j[type]:
+    #             for entity in j[type]:
+    #                 if entity in j['Sentence']:
+    #                     annos.append([entity, type, j['Sentence'].index(entity)])
+    #     return annos
+    # json_2_json(fn, trans_fun={
+    #     'types': lambda j: types,
+    #     'annos': lambda j: get_annos(j),
+    #     'input': lambda j: j['Sentence'],
+    # }, ls_fun=lambda src: sum(json.loads(src), []))
+    fn = 'E:/NLP/NER/38_ner_COTE_train.tsv'
+    types = ['评价对象']
     json_2_json(fn, trans_fun={
-        'types': lambda j: list(set([entity['label_type'] for entity in j['entities']])),
-        'annos': lambda j: [[j['originalText'][entity['start_pos']:entity['end_pos']] , entity['label_type'], entity['start_pos']] for entity in j['entities']],
-        'input': lambda j: j['originalText'],
-    })
+        'types': lambda j: types,
+        'annos': lambda j: [[j[0], '评价对象', j[1].index(j[0])]] if len(j) == 2 and j[0] in j[1] else [],
+        'input': lambda j: j[1],
+    }, ls_fun=lambda src: [l.split('\t') for l in src.split('\n')][1:])
