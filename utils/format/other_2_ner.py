@@ -27,6 +27,19 @@ out_output_reg_map = {
 def get_ready_key(name, type, start):
     return f'{name}-{type}-{start}'
 
+def get_kvs_json(kvs, text):
+    annos = []
+    ks = set()
+    for k in kvs:
+        vs = kvs[k]
+        if type(vs) == str:
+            vs = [vs]
+        for v in vs:
+            if v in text:
+                ks.add(k)
+                annos.append([v, k, text.index(v)])
+    return list(ks), annos
+
 def llm_2_json(fn):
     ls = open(fn, 'r', encoding='utf-8').read().strip().split('\n')
     fh = open(re.sub(r'\..*', '.aa.jsonl', fn), 'w', encoding='utf-8')
@@ -102,6 +115,7 @@ def json_2_json(fn, trans_fun, ls_fun=None):
     else:
         ls = src.split('\n')
     out_ls = []
+    out_js = []
     for l in ls:
         if type(l) == str:
             j = json.loads(l)
@@ -113,10 +127,14 @@ def json_2_json(fn, trans_fun, ls_fun=None):
             'input': trans_fun['input'](j),    
         }
         out_ls.append(json.dumps(out_j, ensure_ascii=False))
+        out_js.append(out_j)
     open(re.sub(r'\..*', '.aa.jsonl', fn), 'w', encoding='utf-8').write('\n'.join(out_ls))
+    return out_js
         
 
 if __name__ == "__main__":
+    import random
+
     # fn = 'E:/NLP/NER/KnowLM-IE.json'
     # fn = 'E:/NLP/NER/48_ner_knowlm-ke_ner_train.json'
     # llm_2_json(fn)
@@ -147,10 +165,31 @@ if __name__ == "__main__":
     #     'annos': lambda j: get_annos(j),
     #     'input': lambda j: j['Sentence'],
     # }, ls_fun=lambda src: sum(json.loads(src), []))
-    fn = 'E:/NLP/NER/38_ner_COTE_train.tsv'
-    types = ['评价对象']
-    json_2_json(fn, trans_fun={
-        'types': lambda j: types,
-        'annos': lambda j: [[j[0], '评价对象', j[1].index(j[0])]] if len(j) == 2 and j[0] in j[1] else [],
+    # fn = 'E:/NLP/NER/38_ner_COTE_train.tsv'
+    # types = ['评价对象']
+    # json_2_json(fn, trans_fun={
+    #     'types': lambda j: types,
+    #     'annos': lambda j: [[j[0], '评价对象', j[1].index(j[0])]] if len(j) == 2 and j[0] in j[1] else [],
+    #     'input': lambda j: j[1],
+    # }, ls_fun=lambda src: [l.split('\t') for l in src.split('\n')][1:])
+    # fn = 'E:/NLP/NER/44_ner_guwenee.json'
+    # json_2_json(fn, trans_fun={
+    #     'types': lambda j: list(set([arg['role'] for arg in sum([event['arguments'] for event in j['event_list']], [])])),
+    #     'annos': lambda j: [[arg['argument'], arg['role'], j['text'].index(arg['argument'])] for arg in sum([event['arguments'] for event in j['event_list']], [])],
+    #     'input': lambda j: j['text'],
+    # })
+    # fn = 'E:/NLP/NER/20_ner_odkg_document.json'
+    # json_2_json(fn, trans_fun={
+    #     'types': lambda j: get_kvs_json(json.loads(json.loads(j['业务抽取'])), j['正文'])[0],
+    #     'annos': lambda j: get_kvs_json(json.loads(json.loads(j['业务抽取'])), j['正文'])[1],
+    #     'input': lambda j: j['正文'],
+    # })
+    fn = 'E:/NLP/NER/32_ner_event_type_entity_extract_train.csv'
+    types = ['涉嫌传销', '资金账户风险', '财务造假', '失联跑路', '涉嫌欺诈', '重组失败', '资产负面', '产品违规', '业绩下滑', '不能履职', '歇业停业', '公司股市异常', '信批违规', '高管负面', '提现困难', '其他', '实控人股东变更', '投诉维权', '涉嫌违法', '涉嫌非法集资', '评级调整', '交易违规']
+    out_js = json_2_json(fn, trans_fun={
+        'types': lambda j: [j[-2]],
+        'annos': lambda j: [[j[-1], j[-2], j[1].index(j[-1])]] if j[-1] in j[1] else [],
         'input': lambda j: j[1],
-    }, ls_fun=lambda src: [l.split('\t') for l in src.split('\n')][1:])
+    }, ls_fun=lambda src: [l[1:-1].split('","') for l in src.split('\n')])
+    # types = list(set(sum([j['types'] for j in out_js], [])))
+    
