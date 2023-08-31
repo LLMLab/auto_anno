@@ -86,10 +86,12 @@ def en2cn(txt, use_cache=True):
 
 # emb
 if config['emb'] == 'yiyan':
-    from utils.api.yiyan_api import emb_yiyan as emb
+    from utils.api.yiyan_api import emb_yiyan as _emb
 elif config['emb'] == 'xunfei':
-    from utils.api.xunfei_api import emb_xunfei as emb
+    from utils.api.xunfei_api import emb_xunfei as _emb
 elif config['emb'] == 'aistudio':
-    from utils.api.aistudio_api import emb_aistudio as emb
+    from utils.api.aistudio_api import emb_aistudio as _emb
 else:
     raise Exception('emb not supported')
+def emb(txt):
+    return try_more(_emb, txt)

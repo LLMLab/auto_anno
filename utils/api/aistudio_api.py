@@ -17,6 +17,10 @@ def chat_aistudio(prompt):
             "content" : prompt
         }]
     )
+    if chat_completion.error_code == 40406:
+        raise Exception('qps limit error')
+    elif chat_completion.error_code:
+        raise Exception(chat_completion.error_msg)
     content = chat_completion.result
     # print('prompt', prompt)
     # print('content', content)
@@ -34,7 +38,10 @@ def emb_aistudio(txt):
     embeddings = aistudio.embed.embedding_v1(
         input=txts,
     )
-
+    if embeddings['error_code'] == 40406:
+        raise Exception('qps limit error')
+    elif embeddings.error_code:
+        raise Exception(embeddings.error_msg)
     vectors = [d['embedding'] for d in embeddings['data']]
     if type(txt) == str:
         return vectors[0]
