@@ -1,6 +1,6 @@
 config = {
-    'api': 'yiyan', # openai | chatglm_paddle | chatglm | yiyan | xunfei | aistudio
-    'en2cn': 'yiyan', # google_trans | chatglm_paddle | yiyan | xunfei | aistudio
+    'api': 'openai', # openai | chatglm_paddle | chatglm | yiyan | xunfei | aistudio
+    'en2cn': 'google_trans', # google_trans | chatglm_paddle | yiyan | xunfei | aistudio
     'emb': 'yiyan', # yiyan | xunfei | aistudio
     'openai': {
         'key': [
@@ -36,7 +36,7 @@ def try_more(fn, *args):
             content = fn(*args)
             return content
         except Exception as e:
-            if 'qps limit error' in str(e):
+            if 'qps limit error' in str(e) or 'rate limit' in str(e):
                 time.sleep(random.random() * 3)
             else:
                 print(fn, *args, e)
