@@ -1,6 +1,5 @@
 openai
 gradio==3.11
-quart
-quart-cors
+flask
 numpy
 scikit-learn
