@@ -4,9 +4,9 @@ info:
   description: A plugin that automatically annotates entity or classfy the text user input based types user specified.
   version: 'v1'
 servers:
-  - url: http://localhost:5003
+  - url: https://api.tekii.cn/
 paths:
-  /classification/{username}:
+  /classification/:
     post:
       operationId: getClassfications
       summary: Get the text classfication based on user input types
@@ -30,7 +30,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/getClassificationResponse'
-  /entityextract/{username}:
+  /entityextract/:
     post:
       operationId: getEntities
       summary: Get the entity name and position based on user input types
@@ -58,37 +58,35 @@ components:
   schemas:
     classificationRequest:
       type: object
+      required: [text,types]
       properties:
         text:
           type: string
           description: The input text user want to classify
-          required: true
         types:
-          type: array
+          type: string
           description: The types user specified
-          required: true
     getClassificationResponse:
       type: object
+      required: [message]
       properties:
-        classes:
+        message:
           type: string
-          description: output class based on type provided by user
+          description: 分类结果
     entityextractRequest:
       type: object
+      required: [text,types]
       properties:
         text:
           type: string
           description: The input text user want to extract
-          required: true
         types:
-          type: array
+          type: string
           description: The types user specified
-          required: true
     getEntityextractResponse:
       type: object
+      required: [message]
       properties:
-        classes:
-          type: array
-          items:
-            type: string
-          description: array of eneity and their types
+        message:
+          type: string
+          description: 抽取结果

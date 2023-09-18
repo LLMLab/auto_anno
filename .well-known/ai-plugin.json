@@ -9,10 +9,10 @@
     },
     "api": {
       "type": "openapi",
-      "url": "http://localhost:5003/.well-known/openapi.yaml",
+      "url": "https://api.tekii.cn/.well-known/openapi.yaml",
       "is_user_authenticated": false
     },
-    "logo_url": "http://localhost:5003/.well-known/logo.png",
+    "logo_url": "https://api.tekii.cn/.well-known/logo.png",
     "contact_email": "legal@example.com",
     "legal_info_url": "http://example.com/legal"
   }

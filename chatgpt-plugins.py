@@ -1,51 +1,74 @@
 import json
-
-import quart
-import quart_cors
-from quart import request
+from flask import Flask, request, send_file, make_response
 from utils.anno.cls.text_classification import text_classification
 from utils.anno.ner.entity_extract import extract_named_entities
+import time
 
 # Note: Setting CORS to allow chat.openapi.com is only required when running a localhost plugin
-app = quart_cors.cors(quart.Quart(__name__), allow_origin="https://chat.openai.com")
+# import quart_cors
+# app = quart_cors.cors(quart.Quart(__name__), allow_origin="https://chat.openai.com")
+# app = quart_cors.cors(quart.Quart(__name__), allow_origin="https://yiyan.baidu.com")
+# 因为通过 nginx 走 https 转发，所以不需要设置 CORS，/etc/nginx/nginx.conf 配置如下
+# add_header 'Access-Control-Allow-Origin' *;
+# location / {
+#         proxy_pass http://127.0.0.1:5003;
+# }
+app = Flask(__name__)
 
+def make_json_response(data, status_code=200):
+    response = make_response(json.dumps(data), status_code)
+    response.headers["Content-Type"] = "application/json"
+    return response
 
-@app.post("/classification/<string:username>")
-async def classification(username):
-    request = await quart.request.get_json(force=True)
-    text = request["text"]
-    types = request["types"]
+@app.route("/classification/", methods=['POST'])
+def classification():
+    text = request.json.get('text', '')
+    types = request.json.get('types', '')
+    time.sleep(3)
+    return make_json_response({'message': '123'}, 200)
     result = text_classification(text, types)
-    return quart.Response(response=json.dumps(result), status=200)
+    print('result', result)
 
 
-@app.post("/entityextract/<string:username>")
-async def entityextract(username):
-    request = await quart.request.get_json(force=True)
-    text = request["text"]
-    types = request["types"]
+@app.route("/entityextract/", methods=['POST'])
+def entityextract():
+    text = request.json.get('text', '')
+    types = request.json.get('types', '')
     result = extract_named_entities(text, types)
-    return quart.Response(response=json.dumps(result), status=200)
+    return make_json_response({'message': result}, 200)
 
 
-@app.get("/.well-known/logo.png")
+@app.route("/logo.png")
 async def plugin_logo():
-    filename = './.well-known/logo.png'
-    return await quart.send_file(filename, mimetype='image/png')
+    """
+        注册用的：返回插件的logo，要求48 x 48大小的png文件.
+        注意：API路由是固定的，事先约定的。
+    """
+    return send_file('logo.png', mimetype='image/png')
 
-@app.get("/.well-known/ai-plugin.json")
+
+@app.route("/.well-known/ai-plugin.json")
 async def plugin_manifest():
-    host = request.headers['Host']
-    with open("./.well-known/ai-plugin.json") as f:
-        text = f.read()
-        return quart.Response(text, mimetype="text/json")
+    """
+        注册用的：返回插件的描述文件，描述了插件是什么等信息。
+        注意：API路由是固定的，事先约定的。
+    """
+    host = request.host_url
+    with open(".well-known/ai-plugin.json", encoding="utf-8") as f:
+        text = f.read().replace("PLUGIN_HOST", host)
+        return text, 200, {"Content-Type": "application/json"}
 
-@app.get("/.well-known/openapi.yaml")
+
+@app.route("/.well-known/openapi.yaml")
 async def openapi_spec():
-    host = request.headers['Host']
-    with open("./.well-known/openapi.yaml") as f:
+    """
+        注册用的：返回插件所依赖的插件服务的API接口描述，参照openapi规范编写。
+        注意：API路由是固定的，事先约定的。
+    """
+    with open(".well-known/openapi.yaml", encoding="utf-8") as f:
         text = f.read()
-        return quart.Response(text, mimetype="text/yaml")
+        return text, 200, {"Content-Type": "text/yaml"}
+
 
 def main():
     app.run(debug=True, host="0.0.0.0", port=5003)
