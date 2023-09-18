@@ -18,7 +18,7 @@
 
 ## 体验地址
 
-https://aistudio.baidu.com/aistudio/projectdetail/6542456
+https://aistudio.baidu.com/serving/app/6566/
 
 ## 支持模型
 
