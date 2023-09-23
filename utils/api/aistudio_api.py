@@ -1,26 +1,19 @@
 # pip install https://studio-package.bj.bcebos.com/aistudio-0.0.2-py3-none-any.whl
-import aistudio
+import erniebot
 import sys
 sys.path.append('.')
 from local_config import config
-import os
-# 配置环境变量
-if os.getenv('WEBIDE_USERID') is None:
-    os.environ['WEBIDE_USERID'] = config['aistudio']['WEBIDE_USERID']
-    os.environ['STUDIO_MODEL_API_URL_PREFIX'] = config['aistudio']['STUDIO_MODEL_API_URL_PREFIX']
-    os.environ['STUDIO_MODEL_API_SDK_USER_JWT_TOKEN'] = config['aistudio']['STUDIO_MODEL_API_SDK_USER_JWT_TOKEN']
+erniebot.api_type = 'aistudio'
+erniebot.access_token = config['aistudio']['access_token']
 
 def chat_aistudio(prompt):
-    chat_completion = aistudio.chat.create(
+    chat_completion = erniebot.ChatCompletion.create(
+        model = 'ernie-bot',
         messages=[{
             "role" : "user" ,
             "content" : prompt
         }]
     )
-    if chat_completion.error_code == 40406:
-        raise Exception('qps limit error')
-    elif chat_completion.error_code:
-        raise Exception(chat_completion.error_msg)
     content = chat_completion.result
     # print('prompt', prompt)
     # print('content', content)
@@ -35,7 +28,10 @@ def emb_aistudio(txt):
     txts = txt
     if type(txt) == str:
         txts = [txt]
-    embeddings = aistudio.embed.embedding_v1(
+    # embeddings max tokens per batch size is 384
+    txts = [txt[:384] for txt in txts]
+    embeddings = erniebot.Embedding.create(
+        model='ernie-text-embedding',
         input=txts,
     )
     if embeddings['error_code'] == 40406:

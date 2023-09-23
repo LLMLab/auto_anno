@@ -1,7 +1,7 @@
 config = {
-    'api': 'openai', # openai | chatglm_paddle | chatglm | yiyan | xunfei | aistudio
-    'en2cn': 'google_trans', # google_trans | chatglm_paddle | yiyan | xunfei | aistudio
-    'emb': 'yiyan', # yiyan | xunfei | aistudio
+    'api': 'aistudio', # openai | chatglm_paddle | chatglm | yiyan | xunfei | aistudio
+    'en2cn': 'aistudio', # google_trans | chatglm_paddle | yiyan | xunfei | aistudio
+    'emb': 'aistudio', # yiyan | xunfei | aistudio
     'openai': {
         'key': [
             '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',
@@ -19,9 +19,7 @@ config = {
         'api_key': ''
     },
     'aistudio': {
-        'WEBIDE_USERID': '',
-        'STUDIO_MODEL_API_URL_PREFIX': 'https://aistudio.baidu.com',
-        'STUDIO_MODEL_API_SDK_USER_JWT_TOKEN': ''
+        'access_token': '3c410ce131fe8d246c47e26fdf932cfd44e95aa8'
     }
 }
 
