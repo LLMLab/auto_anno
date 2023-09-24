@@ -48,19 +48,19 @@ def try_more(fn, *args):
 # chat
 def chat(prompt):
     if config['api'] == 'openai':
-        from utils.api.openai_api import chat_openai as _chat
+        from .utils.api.openai_api import chat_openai as _chat
     elif config['api'] == 'chatglm_paddle':
-        from utils.api.chatglm_paddle import chat_chatglm_paddle as _chat
+        from .utils.api.chatglm_paddle import chat_chatglm_paddle as _chat
     elif config['api'] == 'chatglm':
-        from utils.api.chatglm_api import chat_chatglm as _chat
+        from .utils.api.chatglm_api import chat_chatglm as _chat
     elif config['api'] == 'yiyan':
-        from utils.api.yiyan_api import chat_yiyan as _chat
+        from .utils.api.yiyan_api import chat_yiyan as _chat
     elif config['api'] == 'xunfei':
-        from utils.api.xunfei_api import chat_xunfei as _chat
+        from .utils.api.xunfei_api import chat_xunfei as _chat
     elif config['api'] == 'xunfei':
-        from utils.api.xunfei_api import chat_xunfei as _chat
+        from .utils.api.xunfei_api import chat_xunfei as _chat
     elif config['api'] == 'aistudio':
-        from utils.api.aistudio_api import chat_aistudio as _chat
+        from .utils.api.aistudio_api import chat_aistudio as _chat
     else:
         raise Exception('api not supported')
     return try_more(_chat, prompt)
@@ -70,15 +70,15 @@ en_cn_cache = {}
 def en2cn(txt, use_cache=True):
     
     if config['en2cn'] == 'google_trans':
-        from utils.api.google_trans import en2cn_google as _en2cn
+        from .utils.api.google_trans import en2cn_google as _en2cn
     elif config['en2cn'] == 'chatglm_paddle':
-        from utils.api.chatglm_paddle import en2cn_glm as _en2cn
+        from .utils.api.chatglm_paddle import en2cn_glm as _en2cn
     elif config['en2cn'] == 'yiyan':
-        from utils.api.yiyan_api import en2cn_yiyan as _en2cn
+        from .utils.api.yiyan_api import en2cn_yiyan as _en2cn
     elif config['en2cn'] == 'xunfei':
-        from utils.api.xunfei_api import en2cn_xunfei as _en2cn
+        from .utils.api.xunfei_api import en2cn_xunfei as _en2cn
     elif config['en2cn'] == 'aistudio':
-        from utils.api.aistudio_api import en2cn_aistudio as _en2cn
+        from .utils.api.aistudio_api import en2cn_aistudio as _en2cn
     else:
         raise Exception('en2cn not supported')
     if txt.strip() == '':
@@ -92,11 +92,11 @@ def en2cn(txt, use_cache=True):
 # emb
 def emb(txt):
     if config['emb'] == 'yiyan':
-        from utils.api.yiyan_api import emb_yiyan as _emb
+        from .utils.api.yiyan_api import emb_yiyan as _emb
     elif config['emb'] == 'xunfei':
-        from utils.api.xunfei_api import emb_xunfei as _emb
+        from .utils.api.xunfei_api import emb_xunfei as _emb
     elif config['emb'] == 'aistudio':
-        from utils.api.aistudio_api import emb_aistudio as _emb
+        from .utils.api.aistudio_api import emb_aistudio as _emb
     else:
         raise Exception('emb not supported')
     return try_more(_emb, txt)
