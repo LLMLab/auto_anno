@@ -40,14 +40,14 @@ python app.gradio.py
 
 安装最新 auto_anno_2 包
 
-```
-pip install auto_anno_2 -U -i pypi.org/simple
+```shell
+pip install auto_anno_2 -U -i https://pypi.org/simple
 
 ```
 
 调用示例
 
-```
+```python
 import auto_anno_2 as aa2
 # 接口默认使用了文心一言，可从 https://aistudio.baidu.com/usercenter/token 免费获取100万token额度
 aa2.config['aistudio']['access_token'] = '3c410ce131fe8d246c47e26fdf932cfd44e95aa8'
