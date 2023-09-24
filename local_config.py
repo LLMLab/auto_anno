@@ -22,7 +22,7 @@ config = {
         'api_key': ''
     },
     'aistudio': {
-        'access_token': ''
+        'access_token': '3c410ce131fe8d246c47e26fdf932cfd44e95aa8'
     }
 }
 

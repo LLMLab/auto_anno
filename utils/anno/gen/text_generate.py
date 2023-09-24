@@ -1,9 +1,5 @@
 import re
-import sys
-sys.path.append('.')
-sys.path.append('auto_anno')
-from utils.format.txt_2_list import txt_2_list
-from local_config import chat
+from ....utils.format.txt_2_list import txt_2_list
 
 gen_prompt = "你是一个有丰富数据的文本数据集，请帮我生成10句包含或属于以下类别的文本{类别}" \
     "\n输出格式参考：文本 | 类别" \
@@ -12,12 +8,14 @@ gen_prompt = "你是一个有丰富数据的文本数据集，请帮我生成10�
     "\n以下为10句类别为{类别}，且互不相关的句子："
 
 def text_generate(type_arr, history=[]):
+    from ....local_config import chat, config
     type_arr.sort(key=lambda x: len(x), reverse=True) # 从长倒短排序，有限匹配长的，防止包含短的重复匹配，如：不好，好
     history_txt = ''.join([f'{q} | {a}\n' for q, a in history])
     user = gen_prompt
     user = user.replace('{类别}', str(type_arr)).replace('{历史}', history_txt)
     content = chat(user)
-    print(f'---- text_generate ----\nuser {user}\ncontent {content}\n')
+    if not config['log']['silent']:
+        print(f'---- text_generate ----\nuser {user}\ncontent {content}\n')
     # Check out in type_arr
     result = []
     content = re.sub(r'^\n\|', '|', content, flags=re.MULTILINE) # 防止标签换行
