@@ -3,7 +3,7 @@ import sys
 import re
 sys.path.append('.')
 sys.path.append('auto_anno')
-from local_config import chat
+from local_config import config
 
 ner_prompt = "你是一个聪明而且有百年经验的命名实体识别（NER）识别器. 你的任务是从一段文本里面提取出相应的实体并且给出标签。你的回答必须用统一的格式。文本用```符号分割。输出采用Json的格式并且标记实体在文本中的位置。实体类型保存在一个数组里{类别}\n" \
         '\n输入|```皮卡丘神奇宝贝```输出|[{"name": "皮卡丘", "type": "Person", "start": 0, "end": 3}, {"name": "神奇宝贝", "type": "物种", "start": 4, "end": 8}]' \
@@ -13,12 +13,15 @@ ner_prompt = "你是一个聪明而且有百年经验的命名实体识别（NER
 def get_ready_key(name, type, start):
     return f'{name}-{type}-{start}'
 
-def extract_named_entities(src_txt, type_arr, history=[], chat=chat, prompt=ner_prompt):
+def extract_named_entities(src_txt, type_arr, history=[], chat=None, prompt=ner_prompt):
+    if not chat:
+        from local_config import chat
     history_txt = ''.join([f'输入|```{q}```输出|{json.dumps(a, ensure_ascii=False)}\n' for q, a in history])
     user = prompt
     user = user.replace('{类别}', str(type_arr)).replace('{历史}', history_txt).replace('{原文}', src_txt)
-    content = chat(user)
-    print(f'---- extract_named_entities ----\nuser {user}\ncontent {content}\n')
+    content = chat(user)    
+    if not config['log']['silent']:
+        print(f'---- extract_named_entities ----\nuser {user}\ncontent {content}\n')
     # 跨行替换
     content = re.sub(r'\][^紒]*', ']', content)
     content = re.sub(r'[^紒]*\[', '[', content)

@@ -2,19 +2,22 @@ import sys
 sys.path.append('.')
 sys.path.append('auto_anno')
 from utils.format.txt_2_list import txt_2_list
-from local_config import chat
+from local_config import config
 import re
 
 cls_prompt = "你是一个聪明而且有百年经验的文本分类器. 你的任务是从一段文本里面提取出相应的分类结果签。你的回答必须用统一的格式。文本用```符号分割。分类类型保存在一个数组里{类别}" \
         "\n{历史}" \
         "输入|```{原文}```输出|"
 
-def text_classification(src_txt, type_arr, history=[], chat=chat, prompt=cls_prompt):
+def text_classification(src_txt, type_arr, history=[], chat=None, prompt=cls_prompt):
+    if not chat:
+        from local_config import chat
     history_txt = ''.join([f'输入|```{q}```输出|{a}\n' for q, a in history])
     user = prompt
     user = user.replace('{类别}', str(type_arr)).replace('{历史}', history_txt).replace('{原文}', src_txt)
     content = chat(user)
-    print(f'---- text_classification ----\nuser {user}\ncontent {content}\n')
+    if not config['log']['silent']:
+        print(f'---- text_classification ----\nuser {user}\ncontent {content}\n')
     # 删除非结果部分
     blocks = re.compile(r'[，,.。]').split(content)
     _blocks = []

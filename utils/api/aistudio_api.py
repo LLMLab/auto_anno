@@ -4,9 +4,9 @@ import sys
 sys.path.append('.')
 from local_config import config
 erniebot.api_type = 'aistudio'
-erniebot.access_token = config['aistudio']['access_token']
 
 def chat_aistudio(prompt):
+    erniebot.access_token = config['aistudio']['access_token']
     chat_completion = erniebot.ChatCompletion.create(
         model = 'ernie-bot',
         messages=[{
@@ -25,6 +25,7 @@ def en2cn_aistudio(prompt):
     return result
 
 def emb_aistudio(txt):
+    erniebot.access_token = config['aistudio']['access_token']
     txts = txt
     if type(txt) == str:
         txts = [txt]
