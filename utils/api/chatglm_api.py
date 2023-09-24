@@ -1,11 +1,9 @@
 import requests
-import sys
-sys.path.append('.')
-from local_config import config
 
 # 页面地址 https://fd7fa865d3f27cda69.gradio.live/
 # 指定请求的数据
 def chat_chatglm(prompt):
+  from ...local_config import config
   # 发送POST请求到API
   url = config['chatglm']['url']
   data = {'prompt': prompt}

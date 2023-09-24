@@ -1,11 +1,9 @@
 # pip install https://studio-package.bj.bcebos.com/aistudio-0.0.2-py3-none-any.whl
 import erniebot
-import sys
-sys.path.append('.')
-from local_config import config
 erniebot.api_type = 'aistudio'
 
 def chat_aistudio(prompt):
+    from ...local_config import config
     erniebot.access_token = config['aistudio']['access_token']
     chat_completion = erniebot.ChatCompletion.create(
         model = 'ernie-bot',
@@ -25,6 +23,7 @@ def en2cn_aistudio(prompt):
     return result
 
 def emb_aistudio(txt):
+    from ...local_config import config
     erniebot.access_token = config['aistudio']['access_token']
     txts = txt
     if type(txt) == str:

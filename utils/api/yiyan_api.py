@@ -1,9 +1,7 @@
 import requests
-import sys
-sys.path.append('.')
-from local_config import config
 
 def chat_yiyan(prompt, his=[], prompt_his_str='你：{}\n分身：{}'):
+    from ...local_config import config
     access_token = config['yiyan']['access_token']
     url = f'https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions?access_token={access_token}'
     result = requests.post(url, json={
@@ -25,6 +23,7 @@ def en2cn_yiyan(prompt):
     return result
 
 def emb_yiyan(txt):
+    from ...local_config import config
     if type(txt) == str:
         txts = [txt]
     else:

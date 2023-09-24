@@ -1,20 +1,17 @@
 import openai
-import sys
-sys.path.append('.')
-from local_config import config
-
-openai_key = config['openai']['key']
-if type(openai_key) == list:
-    openai_keys = openai_key
-else:
-    openai_keys = [openai_key]
-
-# Set up your API key
-openai.api_key = openai_keys[0]
 
 i = 0
 
 def chat_openai(user):
+    from ...local_config import config
+    openai_key = config['openai']['key']
+    if type(openai_key) == list:
+        openai_keys = openai_key
+    else:
+        openai_keys = [openai_key]
+
+    # Set up your API key
+    openai.api_key = openai_keys[0]
     global i
     i += 1
     if i >= len(openai_keys):

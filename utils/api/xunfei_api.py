@@ -12,9 +12,6 @@ import time
 from urllib.parse import urlencode
 from wsgiref.handlers import format_date_time
 import requests
-import sys
-sys.path.append('.')
-from local_config import config
 
 import websocket
 import requests
@@ -157,8 +154,9 @@ def main(appid, api_key, api_secret, gpt_url, question):
         if state['is_close']:
             return ''.join(outs)
     return ''
-xunfei_api = config['xunfei']
 def chat_xunfei(prompt):
+    from ...local_config import config
+    xunfei_api = config['xunfei']
     content = main(appid=xunfei_api['appid'],
          api_secret=xunfei_api["api_secret"],
          api_key=xunfei_api["api_key"],
@@ -228,14 +226,15 @@ class EmbeddingReq(object):
             return result['payload']['text']['vector']
         return None
 
-embedding_xunfei = EmbeddingReq(
-        appid=xunfei_api['appid'],
-        api_key=xunfei_api['api_key'],
-        api_secret=xunfei_api['api_secret'],
-        embedding_url="https://knowledge-retrieval.cn-huabei-1.xf-yun.com/v1/aiui/embedding/query"
-    )
-
 def emb_xunfei(prompt):
+    from ...local_config import config
+    xunfei_api = config['xunfei']
+    embedding_xunfei = EmbeddingReq(
+            appid=xunfei_api['appid'],
+            api_key=xunfei_api['api_key'],
+            api_secret=xunfei_api['api_secret'],
+            embedding_url="https://knowledge-retrieval.cn-huabei-1.xf-yun.com/v1/aiui/embedding/query"
+        )
     emb = embedding_xunfei.get_Embedding(prompt)
     return emb
 
