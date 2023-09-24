@@ -28,13 +28,39 @@ OpenAI-api、ChatGLM、文心一言-千帆api、讯飞星火-SparkApi
 
 ## 快速使用
 
+### 本地启动
+
 ```shell
 git clone https://github.com/LLMLab/auto_anno.git
 cd auto_anno
 python app.gradio.py
 ```
 
+### 通过pip包
+
+安装最新 auto_anno_2 包
+
+```
+pip install auto_anno_2 -U -i pypi.org/simple
+
+```
+
+调用示例
+
+```
+import auto_anno_2 as aa2
+# 接口默认使用了文心一言，可从 https://aistudio.baidu.com/usercenter/token 免费获取100万token额度
+aa2.config['aistudio']['access_token'] = '3c410ce131fe8d246c47e26fdf932cfd44e95aa8'
+aa2.cls('今天会下雨么？', ['天气查询', '股票查询', '其他']) # 文本分类
+# ['天气查询']
+aa2.ner('茅台今天会涨么？', ['股票名称']) # 实体抽取
+# [{'name': '茅台', 'type': '股票名称', 'start': 0, 'end': 2}]
+
+```
+
 ## 版本更新
+
+2023-09-24 🔥 auto_anno_2 pip包上线
 
 2023-09-04 💦 开始用A100训练通用分类大模型
 

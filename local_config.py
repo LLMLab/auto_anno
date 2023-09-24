@@ -2,6 +2,9 @@ config = {
     'api': 'aistudio', # openai | chatglm_paddle | chatglm | yiyan | xunfei | aistudio
     'en2cn': 'aistudio', # google_trans | chatglm_paddle | yiyan | xunfei | aistudio
     'emb': 'aistudio', # yiyan | xunfei | aistudio
+    'log': {
+        'silent': True
+    },
     'openai': {
         'key': [
             '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',
