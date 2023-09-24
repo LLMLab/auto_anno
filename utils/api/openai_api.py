@@ -20,12 +20,13 @@ def chat_openai(user):
     if i >= len(openai_keys):
         i = 0
     openai.api_key = openai_keys[i]
-    openai.api_base = "https://api.openai.com/v1"
+    # openai.api_base = "https://api.openai.com/v1"
     # openai.api_base = "http://47.89.230.109/v1"
     # openai.api_base = "https://api.tekii.cn/v1"
+    openai.api_base = "https://api.aiproxy.io/v1"
     # Call the OpenAI API
     completion = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
+                    model="gpt-4",
                     messages=[
                         {"role": "user", "content": f"{user}"},
                     ]
