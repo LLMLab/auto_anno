@@ -185,7 +185,7 @@ def auto_anno(txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, fil
 with gr.Blocks() as demo:
     demo.css = ''
     with gr.Row():
-        gr.Markdown("""自动标注，大模型使用了一言千帆的api，本项目开源地址为：https://github.com/LLMLab/auto_anno""")
+        gr.Markdown("""AI辅助自动标注，项目地址：https://github.com/LLMLab/auto_anno""")
     with gr.Row():
         with gr.Column(variant="panel"):
             input2 = gr.Textbox(lines=3, label="输入类别", value="友好、不友好")
