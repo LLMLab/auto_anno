@@ -6,7 +6,7 @@ import numpy as np
 import random
 import sys
 sys.path.append('.')
-from local_config import emb, config
+from ...local_config import emb, config
 openai_key = config['openai']['key']
 
 EMBEDDING_BY = 'yiyan' # openai | bert
