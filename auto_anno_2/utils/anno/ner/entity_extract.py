@@ -25,7 +25,7 @@ def extract_named_entities(src_txt, type_arr, history=[], chat=None, prompt=ner_
     user = user.replace('{类别}', str(type_arr)).replace('{历史}', history_txt).replace('{原文}', src_txt)
     content = chat(user)    
     if not config['log']['silent']:
-        print(f'---- extract_named_entities ----\nuser {user}\ncontent {content}\n')
+        print(f'---- extract_named_entities ----\nuser {user}\ncontent {content}\n', flush=True)
     # 跨行替换
     content = re.sub(r'\][^紒]*', ']', content)
     content = re.sub(r'[^紒]*\[', '[', content)

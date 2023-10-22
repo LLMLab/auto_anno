@@ -15,7 +15,7 @@ def text_generate(type_arr, history=[]):
     user = user.replace('{类别}', str(type_arr)).replace('{历史}', history_txt)
     content = chat(user)
     if not config['log']['silent']:
-        print(f'---- text_generate ----\nuser {user}\ncontent {content}\n')
+        print(f'---- text_generate ----\nuser {user}\ncontent {content}\n', flush=True)
     # Check out in type_arr
     result = []
     content = re.sub(r'^\n\|', '|', content, flags=re.MULTILINE) # 防止标签换行

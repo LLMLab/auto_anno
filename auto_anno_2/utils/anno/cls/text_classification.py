@@ -18,7 +18,7 @@ def text_classification(src_txt, type_arr, history=[], chat=None, prompt=cls_pro
     user = user.replace('{类别}', str(type_arr)).replace('{历史}', history_txt).replace('{原文}', src_txt)
     content = chat(user)
     if not config['log']['silent']:
-        print(f'---- text_classification ----\nuser {user}\ncontent {content}\n')
+        print(f'---- text_classification ----\nuser {user}\ncontent {content}\n', flush=True)
     # 删除非结果部分
     content = content.split('\n')[0] # 只取第一行，因为第二行开始一般都是解释
     blocks = re.compile(r'[，,.。]').split(content)
