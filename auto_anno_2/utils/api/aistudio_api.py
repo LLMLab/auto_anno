@@ -34,11 +34,9 @@ def emb_aistudio(txt):
         model='ernie-text-embedding',
         input=txts,
     )
-    if embeddings['error_code'] == 40406:
-        raise Exception('qps limit error')
-    elif embeddings.error_code:
-        raise Exception(embeddings.error_msg)
     vectors = [d['embedding'] for d in embeddings['data']]
+    import time
+    time.sleep(1)
     if type(txt) == str:
         return vectors[0]
     return vectors
