@@ -120,8 +120,8 @@ def file_auto_anno(file, types_txt, radio, checkbox_group, cls_prompt, ner_promp
     txt = txts[i]
     if radio in ['文本分类', '实体抽取']:
       txt = txt.split('\t')[0]
-    # thread_auto_anno(out_txts, i, pbar, txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, file_example=file_example)
-    executor.submit(thread_auto_anno, out_txts, i, pbar, txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, file_example=file_example)
+    thread_auto_anno(out_txts, i, pbar, txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, file_example=file_example)
+    # executor.submit(thread_auto_anno, out_txts, i, pbar, txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, file_example=file_example)
   while len(out_txts) < txts_len:
     time.sleep(0.1)
     if time.time() - sts > 60 * 10:
