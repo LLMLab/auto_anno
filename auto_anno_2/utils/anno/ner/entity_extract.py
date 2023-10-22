@@ -15,6 +15,9 @@ def extract_named_entities(src_txt, type_arr, history=[], chat=None, prompt=ner_
     if not chat:
         from ....local_config import chat
     history_txt = ''.join([f'输入|```{q}```输出|{json.dumps(a, ensure_ascii=False)}\n' for q, a in history])
+    if ':' in ''.join(type_arr):
+        history_txt = f'类别描述：{type_arr}\n' + history_txt
+        type_arr = [t.split(':')[0] for t in type_arr] # 适配用冒号来描述类型的情况
     user = prompt
     user = user.replace('{类别}', str(type_arr)).replace('{历史}', history_txt).replace('{原文}', src_txt)
     content = chat(user)    
