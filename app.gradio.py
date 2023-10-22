@@ -5,13 +5,13 @@ import numpy as np
 import time
 import re
 
-from utils.anno.cls.text_classification import text_classification
-from utils.anno.ner.entity_extract import extract_named_entities
-from utils.anno.gen.text_generate import text_generate
-from local_config import en2cn, emb, config
-from utils.format.txt_2_list import txt_2_list
-from utils.format.wash import wash_tel, wash_idcard, wash_q_2_b
-from utils.auto_learn.cluster_text import cluster_text
+from auto_anno_2.utils.anno.cls.text_classification import text_classification
+from auto_anno_2.utils.anno.ner.entity_extract import extract_named_entities
+from auto_anno_2.utils.anno.gen.text_generate import text_generate
+from auto_anno_2.local_config import en2cn, emb, config
+from auto_anno_2.utils.format.txt_2_list import txt_2_list
+from auto_anno_2.utils.format.wash import wash_tel, wash_idcard, wash_q_2_b
+from auto_anno_2.utils.auto_learn.cluster_text import cluster_text
 
 os.makedirs(f'tmp/emb/', exist_ok=True)
 types_md5_vector_map = {}
@@ -86,18 +86,18 @@ executor = ThreadPoolExecutor(max_workers=30)
 from tqdm import tqdm
 
 def thread_auto_anno(out_txts, i, pbar, txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, file_example=None):
-  try:
-    out_anno, txt = auto_anno(txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, file_example=file_example)
-    if radio == '无':
-      out_txt = txt
-    if radio == '数据生成':
-      out_txt = out_anno
-    else:
-      out_txt = f'{txt}\t{out_anno}'
-    out_txts.append([i, out_txt])
-  except Exception as e:
-    print('ERROR', e)
-    out_txts.append([i, ''])
+  # try:
+  out_anno, txt = auto_anno(txt, types_txt, radio, checkbox_group, cls_prompt, ner_prompt, file_example=file_example)
+  if radio == '无':
+    out_txt = txt
+  if radio == '数据生成':
+    out_txt = out_anno
+  else:
+    out_txt = f'{txt}\t{out_anno}'
+  out_txts.append([i, out_txt])
+  # except Exception as e:
+  #   print('ERROR', e)
+  #   out_txts.append([i, ''])
   pbar.update(1)
   return out_txts
 
