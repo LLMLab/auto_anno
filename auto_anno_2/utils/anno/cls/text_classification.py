@@ -20,7 +20,7 @@ def text_classification(src_txt, type_arr, history=[], chat=None, prompt=cls_pro
     if not config['log']['silent']:
         print(f'---- text_classification ----\nuser {user}\ncontent {content}\n', flush=True)
     # 删除非结果部分
-    content = content.split('\n')[0] # 只取第一行，因为第二行开始一般都是解释
+    content = content.replace('`', '').strip().split('\n')[0] # 只取第一行，因为第二行开始一般都是解释
     blocks = re.compile(r'[，,.。]').split(content)
     _blocks = []
     for b in blocks:
