@@ -31,6 +31,7 @@ def text_classification(src_txt, type_arr, history=[], chat=None, prompt=cls_pro
     content = ''.join(_blocks)
     # Check out in type_arr
     result = []
+    type_arr = [t.split(':')[0] for t in type_arr] # 适配用冒号来描述类型的情况
     for type in type_arr:
         if type in content:
             result.append(type)
