@@ -2,6 +2,7 @@ import json
 import sys
 import re
 from ....local_config import config
+from ....utils.format.get_rel_types import get_rel_types
 
 ner_prompt = "你是一个聪明而且有百年经验的命名实体识别（NER）识别器. 你的任务是从一段文本里面提取出相应的实体并且给出标签。你的回答必须用统一的格式。文本用```符号分割。输出采用Json的格式并且标记实体在文本中的位置。实体类型保存在一个数组里{类别}\n" \
         '\n输入|```皮卡丘神奇宝贝```输出|[{"name": "皮卡丘", "type": "Person", "start": 0, "end": 3}, {"name": "神奇宝贝", "type": "物种", "start": 4, "end": 8}]' \
@@ -14,6 +15,8 @@ def get_ready_key(name, type, start):
 def extract_named_entities(src_txt, type_arr, history=[], chat=None, prompt=ner_prompt):
     if not chat:
         from ....local_config import chat
+    if len(type_arr) > 5 and config['anno']['is_rel_types']:
+        type_arr = get_rel_types(src_txt, type_arr, limit=5)
     history_txt = ''.join([f'输入|```{q}```输出|{json.dumps(a, ensure_ascii=False)}\n' for q, a in history])
     if ':' in ''.join(type_arr):
         history_txt = f'类别描述：{type_arr}\n' + history_txt

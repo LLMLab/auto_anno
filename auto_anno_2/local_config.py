@@ -3,7 +3,10 @@ config = {
     'en2cn': 'aistudio', # google_trans | chatglm_paddle | yiyan | xunfei | aistudio
     'emb': 'aistudio', # yiyan | xunfei | aistudio
     'log': {
-        'silent': True
+        'silent': False,
+    },
+    'anno': {
+        'is_rel_types': True,
     },
     'openai': {
         'key': [
