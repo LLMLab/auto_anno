@@ -3,10 +3,14 @@ import erniebot
 erniebot.api_type = 'aistudio'
 
 def chat_aistudio(prompt):
-    from ...local_config import config
+    if __name__ == '__main__':
+        from auto_anno_2.local_config import config
+    else:
+        from ...local_config import config
     erniebot.access_token = config['aistudio']['access_token']
     chat_completion = erniebot.ChatCompletion.create(
-        model = 'ernie-bot',
+        # model = 'ernie-bot',
+        model = 'ernie-bot-4',
         messages=[{
             "role" : "user" ,
             "content" : prompt
@@ -23,7 +27,10 @@ def en2cn_aistudio(prompt):
     return result
 
 def emb_aistudio(txt):
-    from ...local_config import config
+    if __name__ == '__main__':
+        from auto_anno_2.local_config import config
+    else:
+        from ...local_config import config
     erniebot.access_token = config['aistudio']['access_token']
     txts = txt
     if type(txt) == str:
@@ -42,6 +49,8 @@ def emb_aistudio(txt):
     return vectors
 
 if __name__ == '__main__':
+    import sys
+    sys.path.append('.')
     print(chat_aistudio("用可爱的语气介绍一下你自己"))
     print(en2cn_aistudio('hello world'))
     print(emb_aistudio(["推荐⼀些美⻝","给我讲个故事"]))
