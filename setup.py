@@ -1,9 +1,10 @@
 from setuptools import setup, find_packages
 
+VERSION = '0.1.7' 
 
 setup(
     name='auto_anno_2',
-    version='0.1.6',
+    version=VERSION,
     packages=find_packages(),
     # 仓库地址
     url='https://github.com/LLMLab/auto_anno',
@@ -29,10 +30,11 @@ setup(
     # 安装依赖
     install_requires=[
         # list your project dependencies here
-        'erniebot==0.3.1'
+        'erniebot==0.4.0'
     ],
 )
 
+# rm -r ./dist/* # 清楚本地包
 # python setup.py sdist bdist_wheel # 打包
 # pip install dist/auto_anno_2-*-py3-none-any.whl # 本地安装，包名调整为打包出的包名
 # twine upload dist/* # 上传到pypi
