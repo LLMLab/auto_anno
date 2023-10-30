@@ -9,8 +9,8 @@ def chat_aistudio(prompt):
         from ...local_config import config
     erniebot.access_token = config['aistudio']['access_token']
     chat_completion = erniebot.ChatCompletion.create(
-        # model = 'ernie-bot',
-        model = 'ernie-bot-4',
+        model = 'ernie-bot',
+        # model = 'ernie-bot-4',
         messages=[{
             "role" : "user" ,
             "content" : prompt
