@@ -10,8 +10,9 @@ config = {
     },
     'openai': {
         'key': [
-            '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',
-        ]
+            'sk-bpGbwgFrNi9GKcNd9DBAd6QwGtuecv30SU2gAreQzVO8XUrF',
+        ],
+        'api_base': 'https://api.aiproxy.io/v1',
     },
     'chatglm': {
         'url': '',
@@ -20,12 +21,15 @@ config = {
         'access_token': '24.f98fd9187ebb6571194d29108b77a3a9.2592000.1695394520.282335-36387559'
     },
     'xunfei': {
-        'appid': '',
-        'api_secret': '',
-        'api_key': ''
+        'appid': '59be2c0a',
+        'api_secret': '34a2594f32045a8a3eb3cdc627bd2da0',
+        'api_key': '38cc884d7a95137503cf270fc2638946',
+        # 'appid': '​​5aa3b726',
+        # 'api_secret': '​OGEyOWMwNjExM2ZiOTMxZTMwYjAxN2M4',
+        # 'api_key': '​​0e036f09f26f91c1464a2d7b8709e540',
     },
     'aistudio': {
-        'access_token': '3c410ce131fe8d246c47e26fdf932cfd44e95aa8'
+        'access_token': 'c2f3d3e94aad0b2cebef05ea46fe92bd59fce31f'
     }
 }
 

@@ -20,7 +20,8 @@ def chat_openai(user):
     # openai.api_base = "https://api.openai.com/v1"
     # openai.api_base = "http://47.89.230.109/v1"
     # openai.api_base = "https://api.tekii.cn/v1"
-    openai.api_base = "https://api.aiproxy.io/v1"
+    # openai.api_base = "https://api.aiproxy.io/v1"
+    openai.api_base = config['openai'].get('api_base', 'https://api.openai.com/v1')
     # Call the OpenAI API
     completion = openai.ChatCompletion.create(
                     model="gpt-4",
