@@ -51,7 +51,7 @@ pip install auto_anno_2 -U -i https://pypi.org/simple
 ```python
 import auto_anno_2 as aa2
 # 接口默认使用了文心一言，可从 https://aistudio.baidu.com/usercenter/token 免费获取100万token额度
-aa2.config['aistudio']['access_token'] = '3c410ce131fe8d246c47e26fdf932cfd44e95aa8'
+aa2.config['aistudio']['access_token'] = 'c2f3d3e94aad0b2cebef05ea46fe92bd59fce31f'
 aa2.cls('今天会下雨么？', ['天气查询', '股票查询', '其他']) # 文本分类
 # ['天气查询']
 aa2.ner('茅台今天会涨么？', ['股票名称']) # 实体抽取
