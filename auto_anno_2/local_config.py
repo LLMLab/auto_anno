@@ -68,6 +68,8 @@ def chat(prompt):
         from .utils.api.xunfei_api import chat_xunfei as _chat
     elif config['api'] == 'aistudio':
         from .utils.api.aistudio_api import chat_aistudio as _chat
+    elif config['api'] == 'zhipu':
+        from .utils.api.zhipu_api import chat_zhipu as _chat
     else:
         raise Exception('api not supported')
     return try_more(_chat, prompt)
