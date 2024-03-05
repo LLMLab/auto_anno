@@ -22,9 +22,10 @@ def chat_openai(user):
     # openai.api_base = "https://api.tekii.cn/v1"
     # openai.api_base = "https://api.aiproxy.io/v1"
     openai.api_base = config['openai'].get('api_base', 'https://api.openai.com/v1')
+    model = config['openai'].get('model', 'gpt-3.5-turbo')
     # Call the OpenAI API
     completion = openai.ChatCompletion.create(
-                    model="gpt-4",
+                    model=model,
                     messages=[
                         {"role": "user", "content": f"{user}"},
                     ]
@@ -36,7 +37,7 @@ def chat_openai(user):
     return content
 
 if __name__ == '__main__':
-    content = chat_openai('123')
+    content = chat_openai('你好')
     print(content)
     # import flask
     # app = flask.Flask(__name__)

@@ -13,6 +13,7 @@ config = {
             'sk-bpGbwgFrNi9GKcNd9DBAd6QwGtuecv30SU2gAreQzVO8XUrF',
         ],
         'api_base': 'https://api.aiproxy.io/v1',
+        'model': 'gpt-3.5-turbo',
     },
     'chatglm': {
         'url': '',
@@ -29,7 +30,8 @@ config = {
         # 'api_key': '​​0e036f09f26f91c1464a2d7b8709e540',
     },
     'aistudio': {
-        'access_token': 'c2f3d3e94aad0b2cebef05ea46fe92bd59fce31f'
+        'access_token': 'c2f3d3e94aad0b2cebef05ea46fe92bd59fce31f',
+        'model': 'ernie-3.5',
     }
 }
 
