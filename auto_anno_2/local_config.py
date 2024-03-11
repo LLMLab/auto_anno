@@ -14,6 +14,7 @@ config = {
         ],
         'api_base': 'https://api.aiproxy.io/v1',
         'model': 'gpt-3.5-turbo',
+        'emb_model': 'text-embedding-3-large',
     },
     'chatglm': {
         'url': '',

@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = '0.1.9' 
+VERSION = '0.1.10' 
 
 setup(
     name='auto_anno_2',
@@ -30,7 +30,7 @@ setup(
     # 安装依赖
     install_requires=[
         # list your project dependencies here
-        'erniebot==0.4.0'
+        'erniebot==0.5.3'
     ],
 )
 
