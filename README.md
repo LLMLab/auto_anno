@@ -108,3 +108,6 @@ aa2.gen(['天气查询', '股票查询']) # 数据生成
 |        **目标检测**        |                  の男、[马琦钧](https://github.com/Skypow2012)                  |
 |        **文档管理**        |                                  Jun、S13D                                  |
 | **ChatGLM、VisualGLM 探索** |                                     Mike                                     |
+
+## 项目资金
+本项目资金剩余1600元，可用于autodl.com租用GPU/NPU，欢迎感兴趣的同学联系我继续开发（微信：maqijun123456）
