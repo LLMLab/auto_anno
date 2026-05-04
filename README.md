@@ -110,6 +110,9 @@ aa2.gen(['天气查询', '股票查询']) # 数据生成
 | **ChatGLM、VisualGLM 探索** |                                     Mike                                     |
 
 ## 项目资金
+2026-05-04 支出500元用于量价模型+新闻情绪融合，3天大涨大跌二分类准确率达70%
+https://gitcode.com/tekii_stock/k_line_predict
+
 2026-04-13 支出600元用于k线图分类标注训练
 
-本项目资金剩余1000元，可用于autodl.com租用GPU/NPU，欢迎感兴趣的同学联系我继续开发（微信：maqijun123456）
+本项目资金剩余500元，可用于autodl.com租用GPU/NPU，欢迎感兴趣的同学联系我继续开发（微信：maqijun123456）
